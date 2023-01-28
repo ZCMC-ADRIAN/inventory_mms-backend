@@ -69,10 +69,19 @@ class ItemController extends Controller
         }
     }
 
-    public function query(Request $request)
+    public function query($id)
     {
         try {
-            $items = DB::select("SELECT * FROM items WHERE item_Name LIKE '%?%'", $request["q"]);
+            $items = DB::select("SELECT i.Pk_itemId, t.type_name, s.status_name,m.manu_name,su.supplier, u.unit, v.variety,b.brand_name,c.country, i.item_name, i.model, i.details2,i.other, i.serial,i.warranty,i.acquisition_date,i.property_no,i.expiration,i.fundSource,i.remarks,i.created_at 
+            FROM `items` i JOIN types t on i.Fk_typeId = t.Pk_typeId 
+            JOIN status s ON i.Fk_statusId = s.Pk_statusId 
+            JOIN manufacturers m ON i.Fk_manuId = m.Pk_manuId 
+            JOIN suppliers su ON i.Fk_supplierId = su.Pk_supplierId 
+            JOIN units u ON i.Fk_unitId = u.Pk_unitId 
+            JOIN variety v ON i.Fk_varietyId = v.Pk_varietyId 
+            JOIN brands b ON i.Fk_brandId = b.Pk_brandId 
+            JOIN countries c ON i.Fk_countryId = c.Pk_countryId 
+            WHERE i.Pk_itemId = ?;", [$id]);
             return response($items);
         } catch (\Throwable $th) {
             return response()->json([

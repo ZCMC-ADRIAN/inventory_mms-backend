@@ -31,9 +31,7 @@ Route::namespace('App\Http\Controllers')->group(function () {
     //Item details
     Route::GET('/itemtable', 'ItemController@multiq');
     Route::GET('/item', 'ItemController@index');
-    Route::GET('/lol', function(){
-        return 'aaaaaaa';
-    });
+    Route::GET('/itemdetail/{id}', 'ItemController@query');
     
 
     //
