@@ -28,5 +28,17 @@ Route::namespace('App\Http\Controllers')->group(function () {
     Route::get('/status', 'GetData\Fields@get_status');
     Route::get('/supplier', 'GetData\Fields@get_supplier');
 
+    //Item details
+    Route::GET('/itemtable', 'ItemController@multiq');
+    Route::GET('/item', 'ItemController@index');
+    Route::GET('/lol', function(){
+        return 'aaaaaaa';
+    });
+    
+
+    //
+    Route::GET('/type', 'TypesController@index');
+    Route::GET('/brand', 'BrandController@index');
+
     // Route::get('/test', 'test@test');
 });
