@@ -36,21 +36,21 @@ class ItemController extends Controller
     }
     public function multiq(Request $request)
     {
-        
+
         try {
-                if($request->has('q')){
-                    # search item
-                    $q = $request->input('q');
-                    $items = DB::select("
+            if ($request->has('q')) {
+                # search item
+                $q = $request->input('q');
+                $items = DB::select("
                     SELECT items.Pk_itemId, items.item_name, b.brand_name, m.manu_name, 
                     t.type_name, a.article_name, items.remarks FROM `items` 
                     LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
                     LEFT JOIN manufacturers m on items.Fk_manuId = m.Pk_manuId 
                     LEFT JOIN types t on items.Fk_typeId = t.Pk_typeId 
-                    LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId WHERE items.item_name LIKE ?;",["%$q%"]);
-                    return response()->json($items);
-                }else{
-                    $items = DB::select("
+                    LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId WHERE items.item_name LIKE ?;", ["%$q%"]);
+                return response()->json($items);
+            } else {
+                $items = DB::select("
                     SELECT items.Pk_itemId, items.item_name, b.brand_name, m.manu_name, 
                     t.type_name, a.article_name, items.remarks FROM `items` 
                     LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
@@ -58,8 +58,7 @@ class ItemController extends Controller
                     LEFT JOIN types t on items.Fk_typeId = t.Pk_typeId 
                     LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId;");
                 return response()->json($items);
-                }
-           
+            }
         } catch (\Throwable $th) {
             return $th;
             return response()->json([
@@ -72,7 +71,27 @@ class ItemController extends Controller
     public function query($id)
     {
         try {
-            $items = DB::select("SELECT i.Pk_itemId, t.type_name, s.status_name,m.manu_name,su.supplier, u.unit, v.variety,b.brand_name,c.country, i.item_name, i.model, i.details2,i.other, i.serial,i.warranty,i.acquisition_date,i.property_no,i.expiration,i.fundSource,i.remarks,i.created_at 
+            $items = DB::select("SELECT i.item_name as 'Item name', 
+            b.brand_name as 'Brand',
+            art.article_name as 'Article',
+            t.type_name as 'Item name', 
+            s.status_name as 'Status',
+            i.model as 'Model', 
+            m.manu_name as 'Manufacturer',
+            su.supplier as 'Suplier', 
+            u.unit as 'Unit', 
+            v.variety as 'Variety',
+            c.country as 'Country origin', 
+            i.details2 as 'Details',
+            i.other as 'Other Details', 
+            i.serial as 'Serial No.',
+            i.warranty as 'Warranty',
+            i.acquisition_date as 'Acquisition Date',
+            i.property_no as 'Property No',
+            i.expiration as 'Expiration Date',
+            i.fundSource as 'Fund Source',
+            i.remarks as 'Remarks',
+            i.created_at as 'Created at'
             FROM `items` i JOIN types t on i.Fk_typeId = t.Pk_typeId 
             JOIN status s ON i.Fk_statusId = s.Pk_statusId 
             JOIN manufacturers m ON i.Fk_manuId = m.Pk_manuId 
@@ -81,6 +100,7 @@ class ItemController extends Controller
             JOIN variety v ON i.Fk_varietyId = v.Pk_varietyId 
             JOIN brands b ON i.Fk_brandId = b.Pk_brandId 
             JOIN countries c ON i.Fk_countryId = c.Pk_countryId 
+            LEFT JOIN articles art ON t.Fk_articleId = art.Pk_articleId
             WHERE i.Pk_itemId = ?;", [$id]);
             return response($items);
         } catch (\Throwable $th) {
