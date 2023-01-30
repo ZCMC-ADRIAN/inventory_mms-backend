@@ -33,10 +33,11 @@ Route::namespace('App\Http\Controllers')->group(function () {
     Route::GET('/item', 'ItemController@index');
     Route::GET('/itemdetail/{id}', 'ItemController@query');
     
-
+    Route::GET('/location', 'LocationController@index');
+    Route::GET('/condition', 'ConditionController@query');
     //
     Route::GET('/type', 'TypesController@index');
     Route::GET('/brand', 'BrandController@index');
-
+    Route::post('/inv', 'InventoryController@store');
     // Route::get('/test', 'test@test');
 });
