@@ -9,8 +9,9 @@ class Condition extends Model
 {
     use HasFactory;
     protected $table = 'conditions';
-
+public $timestamps = false;
     protected $fillable = [
         'conditions_name',
+        
     ];
 }

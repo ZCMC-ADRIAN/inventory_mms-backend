@@ -10,8 +10,9 @@ class Inventory extends Model
     use HasFactory;
 
     protected $table = 'inventories';
-
+    public $timestamps = false;
     protected $fillable = [
+        'Fk_itemId',
         'Fk_locationId',
         'Fk_conditionsId',	
         'IAR_num',
