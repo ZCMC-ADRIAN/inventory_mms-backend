@@ -24,10 +24,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/status', 'GetData\Fields@get_status');
         Route::get('/supplier', 'GetData\Fields@get_supplier');
 
-        //Table
-        Route::get('/data-table', 'GetData\Table@data_table');
-        Route::get('/available', 'GetData\Table@available');
-        Route::get('/details', 'GetData\Table@details');
-        // Route::get('/test', 'test@test');
-    });
+    //Table
+    Route::get('/data-table', 'GetData\Table@data_table');
+    Route::get('/available', 'GetData\Table@available');
+    Route::get('/details', 'GetData\Table@details');
+
+    // Route::get('/test', 'test@test');
 });
