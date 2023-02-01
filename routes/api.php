@@ -30,4 +30,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/details', 'GetData\Table@details');
 
     // Route::get('/test', 'test@test');
+    });
 });
