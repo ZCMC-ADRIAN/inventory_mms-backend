@@ -189,6 +189,7 @@ class CreateItem extends Controller
             $item->acquisition_date = $req->acquisition;
             $item->property_no = $req->propertyNum;
             $item->expiration = $req->expiration;
+            $item->cost = $req->cost;
             $item->fundSource = $req->acquisitionMode;
             $item->save();
 

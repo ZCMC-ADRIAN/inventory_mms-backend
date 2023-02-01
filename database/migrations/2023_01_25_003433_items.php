@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedInteger('Fk_varietyId')->nullable();
             $table->unsignedInteger('Fk_brandId')->nullable();
             $table->unsignedInteger('Fk_countryId')->nullable();
-            
+
             $table->foreign('Fk_typeId')->references('Pk_typeId')->on('types');
             $table->foreign('Fk_statusId')->references('Pk_statusId')->on('status');
             $table->foreign('Fk_manuId')->references('Pk_manuId')->on('manufacturers');
@@ -44,6 +44,7 @@ return new class extends Migration
             $table->string('property_no')->nullable();
             $table->date('expiration')->nullable();
             $table->string('fundSource')->nullable();
+            $table->double('cost', 10, 2)->default(0.00);
             $table->string('remarks')->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
         });

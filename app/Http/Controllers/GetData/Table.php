@@ -40,6 +40,7 @@ class Table extends Controller
                     ->leftJoin('suppliers', 'manufacturers.Pk_manuId', '=', 'items.Fk_manuId')
                     ->leftJoin('countries', 'countries.Pk_countryId', '=', 'items.Fk_countryId')
                     ->leftJoin('location', 'location.Pk_locationId', '=', 'inventories.Fk_locationId')
+                    ->select('*', DB::raw('FORMAT(cost,2) as costs'))
                     ->where('Pk_inventoryId', $req->inId)
                     ->get();
                     
