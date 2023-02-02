@@ -17,11 +17,11 @@ return new class extends Migration
 
             $table->increments('Pk_inventoryId');
             $table->unsignedInteger('Fk_itemId');
-            $table->unsignedInteger('Fk_locationId');
+            $table->unsignedInteger('Fk_assocId');
             $table->unsignedInteger('Fk_conditionsId');
 
             $table->foreign('Fk_ItemId')->references('Pk_itemId')->on('items');
-            $table->foreign('Fk_locationId')->references('Pk_locationId')->on('location');
+            $table->foreign('Fk_assocId')->references('Pk_assocId')->on('associate');
             $table->foreign('Fk_conditionsId')->references('PK_conditionsId')->on('conditions');
 
             $table->string('IAR_num')->nullable();

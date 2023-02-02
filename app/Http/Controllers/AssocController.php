@@ -2,32 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
-class LocationController extends Controller
+class AssocController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        //SELECT Pk_locationId, location_name FROM `location` WHERE 1;
+        //
+        //else {
         try {
-            if ($request->has('q')) {
-                # search item
-                $q = $request->input('q');
-                $location = DB::select("SELECT Pk_locationId, location_name FROM `location` WHERE location_name LIKE ?", ["%$q%"]);
-                return response()->json($location);
-            } else {
-                # code...
-                $location = DB::table('location')->select(
-                    ["Pk_locationId", "location_name"]
-                )->get();
-                return response()->json($location);
-            }
+            $location = DB::select("SELECT * FROM `associate`");
+            return response()->json($location);
         } catch (\Throwable $th) {
             return $th;
             return response()->json([
@@ -55,7 +46,6 @@ class LocationController extends Controller
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
@@ -67,6 +57,16 @@ class LocationController extends Controller
     public function show($id)
     {
         //
+        try {
+            $location = DB::select("SELECT * FROM `associate` WHERE Fk_locationId = ?;", [$id]);
+            return response()->json($location);
+        } catch (\Throwable $th) {
+            return $th;
+            return response()->json([
+                'status' => 500,
+                'message' => $th
+            ]);
+        }
     }
 
     /**
