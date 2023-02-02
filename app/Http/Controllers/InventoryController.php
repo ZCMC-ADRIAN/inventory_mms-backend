@@ -84,12 +84,12 @@ class InventoryController extends Controller
                     'Remarks'=>$remarks,
                     'Fk_itemId' => $itemId,
                 ]);
-               DB::commit();
+                DB::commit();
                 return response()->json([
                     'message' => 'Inventory created successfully',
                     'data' => $inventory
                 ], 201);
-                 
+                
         }catch(\Throwable $th){
             DB::rollBack();
             return response()->json([
