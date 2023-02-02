@@ -93,13 +93,13 @@ class ItemController extends Controller
             i.remarks as 'Remarks',
             i.created_at as 'Created at'
             FROM `items` i JOIN types t on i.Fk_typeId = t.Pk_typeId 
-            JOIN status s ON i.Fk_statusId = s.Pk_statusId 
-            JOIN manufacturers m ON i.Fk_manuId = m.Pk_manuId 
-            JOIN suppliers su ON i.Fk_supplierId = su.Pk_supplierId 
-            JOIN units u ON i.Fk_unitId = u.Pk_unitId 
-            JOIN variety v ON i.Fk_varietyId = v.Pk_varietyId 
-            JOIN brands b ON i.Fk_brandId = b.Pk_brandId 
-            JOIN countries c ON i.Fk_countryId = c.Pk_countryId 
+            LEFT JOIN status s ON i.Fk_statusId = s.Pk_statusId 
+            LEFT JOIN manufacturers m ON i.Fk_manuId = m.Pk_manuId 
+            LEFT JOIN suppliers su ON i.Fk_supplierId = su.Pk_supplierId 
+            LEFT JOIN units u ON i.Fk_unitId = u.Pk_unitId 
+            LEFT JOIN variety v ON i.Fk_varietyId = v.Pk_varietyId 
+            LEFT JOIN brands b ON i.Fk_brandId = b.Pk_brandId 
+            LEFT JOIN countries c ON i.Fk_countryId = c.Pk_countryId 
             LEFT JOIN articles art ON t.Fk_articleId = art.Pk_articleId
             WHERE i.Pk_itemId = ?;", [$id]);
             return response($items);
