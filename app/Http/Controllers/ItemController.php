@@ -19,11 +19,11 @@ class ItemController extends Controller
             if ($request->has('q')) {
                 # search item
                 $q = $request->input('q');
-                $items = DB::select("SELECT COUNT(items.item_name) as total, items.item_name from items WHERE items.item_name LIKE ? GROUP by items.item_name;", ["%$q%"]);
+                $items = DB::select("SELECT COUNT(items.item_name) as total, items.item_name from items WHERE items.item_name LIKE ? AND items.isStored IS NULL GROUP by items.item_name;", ["%$q%"]);
                 return response()->json($items);
             } else {
                 # code... SELECT COUNT(items.item_name) as total, items.item_name from items GROUP by items.item_name;
-                $items = DB::select("SELECT COUNT(items.item_name) as total, items.item_name from items GROUP by item_name;");
+                $items = DB::select("SELECT COUNT(items.item_name) as total, items.item_name from items WHERE items.isStored IS NULL  GROUP by item_name;");
                 return response()->json($items);
             }
         } catch (\Throwable $th) {
@@ -47,7 +47,7 @@ class ItemController extends Controller
                     LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
                     LEFT JOIN manufacturers m on items.Fk_manuId = m.Pk_manuId 
                     LEFT JOIN types t on items.Fk_typeId = t.Pk_typeId 
-                    LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId WHERE items.item_name LIKE ?;", ["%$q%"]);
+                    LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId WHERE items.item_name LIKE ? AND items.isStored IS NULL;", ["%$q%"]);
                 return response()->json($items);
             } else {
                 $items = DB::select("
@@ -56,7 +56,7 @@ class ItemController extends Controller
                     LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
                     LEFT JOIN manufacturers m on items.Fk_manuId = m.Pk_manuId 
                     LEFT JOIN types t on items.Fk_typeId = t.Pk_typeId 
-                    LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId;");
+                    LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId WHERE items.isStored IS NULL;");
                 return response()->json($items);
             }
         } catch (\Throwable $th) {

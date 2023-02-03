@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unsignedInteger('Fk_varietyId')->nullable();
             $table->unsignedInteger('Fk_brandId')->nullable();
             $table->unsignedInteger('Fk_countryId')->nullable();
+            $table->unsignedInteger('isStored')->nullable();
 
             $table->foreign('Fk_typeId')->references('Pk_typeId')->on('types');
             $table->foreign('Fk_statusId')->references('Pk_statusId')->on('status');
@@ -33,6 +34,7 @@ return new class extends Migration
             $table->foreign('Fk_varietyId')->references('Pk_varietyId')->on('variety');
             $table->foreign('Fk_brandId')->references('Pk_brandId')->on('brands');
             $table->foreign('Fk_countryId')->references('Pk_countryId')->on('countries');
+            $table->foreign('isStored')->references('Pk_locationId')->on('location');
 
             $table->string('item_name')->nullable();
             $table->string('model')->nullable();

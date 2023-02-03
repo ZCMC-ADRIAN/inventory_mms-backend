@@ -6,6 +6,7 @@ use App\Models\Condition;
 use App\Models\Location;
 use App\Models\Associate;
 use App\Models\Inventory;
+use App\Models\InsertItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -63,7 +64,7 @@ class InventoryController extends Controller
             $pack_size = $data['pack_size'];
             $loose = $data['loose'];
             $remarks = $data['remarks'];
-
+            
             if (!$condition_id) {
                 $cond = Condition::create([
                     'conditions_name' => $newcondition_name,
@@ -84,6 +85,9 @@ class InventoryController extends Controller
                 $assoc_id = $assoc->id;
             }
 
+            $item = InsertItem::findOrFail($itemId);
+            $item->update(['isStored' => $location_id]);
+            
             $inventory = Inventory::create([
                 'Fk_assocId' => $assoc_id,
                 'Fk_conditionsId' => $condition_id,
