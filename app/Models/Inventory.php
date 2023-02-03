@@ -13,8 +13,8 @@ class Inventory extends Model
     public $timestamps = false;
     protected $fillable = [
         'Fk_itemId',
-        'Fk_locationId',
-        'Fk_conditionsId',	
+        'Fk_assocId',
+        'Fk_conditionsId',
         'IAR_num',
         'IAR_date',
         'Delivery_date',
