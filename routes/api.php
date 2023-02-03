@@ -30,7 +30,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::GET('/item', 'ItemController@index');
         Route::GET('/itemdetail/{id}', 'ItemController@query');
 
-
         Route::GET('/location', 'LocationController@index');
         Route::GET('/assoc/{id}', 'AssocController@show');
         Route::GET('/assoc', 'AssocController@index');
