@@ -41,7 +41,7 @@ class Table extends Controller
                     ->leftJoin('countries', 'countries.Pk_countryId', '=', 'items.Fk_countryId')
                     ->leftJoin('associate', 'associate.Pk_assocId', '=', 'inventories.Fk_assocId')
                     ->leftJoin('location', 'location.Pk_locationId', '=', 'associate.Fk_locationId')
-                    ->select('*', DB::raw('FORMAT(cost,2) as costs'))
+                    ->select('*', DB::raw('FORMAT(cost,2) as costs'), DB::raw('Quantity * pack_size + loose as qty'))
                     ->where('Pk_inventoryId', $req->inId)
                     ->get();
                     
