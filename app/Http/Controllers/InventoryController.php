@@ -6,6 +6,7 @@ use App\Models\Condition;
 use App\Models\Location;
 use App\Models\Associate;
 use App\Models\Inventory;
+use App\Models\Locatman;
 use App\Models\InsertItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,8 +44,9 @@ class InventoryController extends Controller
 
     public function store(Request $request)
     {
-
-
+//NEW
+// property_no
+// serial
 
         try {
 
@@ -57,11 +59,10 @@ class InventoryController extends Controller
             $newcondition_name = $data['newcondition_name'];
             $newlocation_name = $data['newlocation_name'];
             $newAssoc_name = $data['newAssoc_name'];
-            $iar_no = $data['iar_no'];
-            $iar_date = $data['iar_date'];
+            $prop_no = $data['property_no'];
+            $serial = $data['serial'];
             $delivery_date = $data['delivery_date'];
             $quantity = $data['quantity'];
-            $pack_size = $data['pack_size'];
             $loose = $data['loose'];
             $remarks = $data['remarks'];
             
@@ -85,20 +86,24 @@ class InventoryController extends Controller
                 $assoc_id = $assoc->id;
             }
 
-            $item = InsertItem::findOrFail($itemId);
-            $item->update(['isStored' => $location_id]);
+            $locatman = Locatman::create([
+                'Fk_assocId'=>$assoc_id,
+                'Fk_locationId'=>$location_id,
+            ]);
+            // $item = InsertItem::findOrFail($itemId);
+            // $item->update(['isStored' => $location_id]);
             
             $inventory = Inventory::create([
-                'Fk_assocId' => $assoc_id,
+                
+                'Fk_itemId' => $itemId,
                 'Fk_conditionsId' => $condition_id,
-                'IAR_num' => $iar_no,
-                'IAR_date' => $iar_date,
+                'Fk_locatmanId' => $locatman,
                 'Delivery_date' => $delivery_date,
                 'Quantity' => $quantity,
-                'pack_size' => $pack_size,
+                'property_no' => $prop_no,
+                'serial' => $serial,
                 'loose' => $loose,
                 'Remarks' => $remarks,
-                'Fk_itemId' => $itemId,
             ]);
             DB::commit();
             return response()->json([
