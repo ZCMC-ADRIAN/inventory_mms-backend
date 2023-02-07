@@ -32,10 +32,10 @@ class ItemSeeder extends Seeder
             'model' => "model is unique",
             'details2' => "details ",
             'other' => "other details",
-            'serial' => "#serial1234566",
+            34566",
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
-            'property_no'	=> "prop num",
+            
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
             'remarks' => "remarks",
@@ -57,10 +57,10 @@ class ItemSeeder extends Seeder
             'model' => "model2",
             'details2' => "zzzzzzz ",
             'other' => "ssample",
-            'serial' => "#s242234566",
+            66",
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
-            'property_no'	=> "prop num",
+            
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
             'remarks' => "remarks",
@@ -81,10 +81,10 @@ class ItemSeeder extends Seeder
             'model' => "model2",
             'details2' => "xxxxxx ",
             'other' => "wwwww",
-            'serial' => "#adawad",
+            
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
-            'property_no'	=> "prop num",
+            
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
             'remarks' => "remarks",
@@ -105,10 +105,10 @@ class ItemSeeder extends Seeder
             'model' => "WAKANDAawdadadawda",
             'details2' => "xadawda ",
             'other' => "dsssssss",
-            'serial' => "#adawad",
+            
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
-            'property_no'	=> "prop num",
+            
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
             'remarks' => "remarks",
@@ -129,10 +129,10 @@ class ItemSeeder extends Seeder
             'model' => "model2",
             'details2' => "xxxxxx ",
             'other' => "wwwww",
-            'serial' => "#adawad",
+            
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
-            'property_no'	=> "prop num",
+            
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
             'remarks' => "remarks",
