@@ -17,9 +17,7 @@ return new class extends Migration
         //
         Schema::create('associate', function (Blueprint $table) {
             $table->increments('Pk_assocId');
-            $table->string('person_name')->nullable()->notNullable();
-            $table->unsignedInteger('Fk_locationId')->notNullable();
-            $table->foreign('Fk_locationId')->references('Pk_locationId')->on('location');
+            $table->string('person_name')->notNullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
