@@ -36,7 +36,11 @@ class DatabaseSeeder extends Seeder
             BrandSeeder::class,
             CountrySeeder::class,
             ItemSeeder::class,
-            LocationSeeder::class
+            LocationSeeder::class,
+            ConditionSeeder::class,
+            AssocSeeder::class,
+            LocatmanSeeder::class,
+            InventorySeeder::class
         ]);
     }
 }

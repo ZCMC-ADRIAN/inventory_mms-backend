@@ -28,10 +28,11 @@ return new class extends Migration
             // $table->date('IAR_date')->nullable();
             $table->date('Delivery_date')->nullable();
             $table->integer('Quantity')->nullable();
-            $table->integer('property_no')->nullable();
-            $table->integer('serial')->nullable();
+            $table->string('property_no')->nullable();
+            $table->string('serial')->nullable();
             $table->integer('loose')->nullable();
             $table->text('Remarks')->nullable();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }
 
