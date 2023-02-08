@@ -184,10 +184,8 @@ class CreateItem extends Controller
             $item->model = $req->model;
             $item->details2 = $req->details;
             $item->other = $req->other;
-            $item->serial = $req->serialNum;
             $item->warranty = $req->warranty;
             $item->acquisition_date = $req->acquisition;
-            $item->property_no = $req->propertyNum;
             $item->expiration = $req->expiration;
             $item->cost = $req->cost;
             $item->fundSource = $req->acquisitionMode;

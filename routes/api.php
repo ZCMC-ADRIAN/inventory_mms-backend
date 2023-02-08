@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\SignUp;
+use App\Http\Controllers\test;
 use Illuminate\Support\Facades\Route;
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/signup', [SignUp::class, 'SignUp']);
 Route::post('/signin', [SignUp::class, 'Login']);
+Route::get('/test', [test::class, 'test']);
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
