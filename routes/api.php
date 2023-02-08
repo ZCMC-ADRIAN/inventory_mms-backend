@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\SignUp;
-use App\Http\Controllers\test;
 use Illuminate\Support\Facades\Route;
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -11,7 +10,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/signup', [SignUp::class, 'SignUp']);
 Route::post('/signin', [SignUp::class, 'Login']);
-Route::get('/test', [test::class, 'test']);
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -46,5 +44,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/data-table', 'GetData\Table@data_table');
         Route::get('/available', 'GetData\Table@available');
         Route::get('/details', 'GetData\Table@details');
+        Route::get('/item-list', 'GetData\Table@items');
     });
 });
