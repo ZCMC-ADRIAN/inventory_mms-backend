@@ -32,15 +32,12 @@ class ItemSeeder extends Seeder
             'model' => "model is unique",
             'details2' => "details ",
             'other' => "other details",
-            34566",
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
-            
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
             'remarks' => "remarks",
             "created_at" => Carbon::now(),
-            
         ]);
 
         DB::table('items')->insert([
@@ -57,10 +54,8 @@ class ItemSeeder extends Seeder
             'model' => "model2",
             'details2' => "zzzzzzz ",
             'other' => "ssample",
-            66",
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
-            
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
             'remarks' => "remarks",
@@ -81,10 +76,8 @@ class ItemSeeder extends Seeder
             'model' => "model2",
             'details2' => "xxxxxx ",
             'other' => "wwwww",
-            
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
-            
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
             'remarks' => "remarks",
@@ -105,10 +98,8 @@ class ItemSeeder extends Seeder
             'model' => "WAKANDAawdadadawda",
             'details2' => "xadawda ",
             'other' => "dsssssss",
-            
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
-            
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
             'remarks' => "remarks",
@@ -129,10 +120,8 @@ class ItemSeeder extends Seeder
             'model' => "model2",
             'details2' => "xxxxxx ",
             'other' => "wwwww",
-            
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
-            
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
             'remarks' => "remarks",
