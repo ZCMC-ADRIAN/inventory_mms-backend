@@ -16,6 +16,5 @@ class Associate extends Model
     public $timestamps = false;
     protected $fillable = [
         'person_name',
-        'Fk_locationId'
     ];
 }

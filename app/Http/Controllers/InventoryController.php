@@ -65,36 +65,50 @@ class InventoryController extends Controller
             $quantity = $data['quantity'];
             $loose = $data['loose'];
             $remarks = $data['remarks'];
-            
+
+            $isnew = false;
             if (!$condition_id) {
                 $cond = Condition::create([
                     'conditions_name' => $newcondition_name,
                 ]);
                 $condition_id = $cond->id;
+                echo 'condition selected is empty: created new condion';
             }
             if (!$location_id) {
                 $loc = Location::create([
                     'location_name' => $newlocation_name,
                 ]);
                 $location_id = $loc->id;
+                echo 'location selected is empty: created new loc';
+                $isnew = true;
             }
             if (!$assoc_id) {
                 $assoc = Associate::create([
                     'person_name' => $newAssoc_name,
-                    'Fk_locationId' => $location_id
                 ]);
                 $assoc_id = $assoc->id;
+                echo 'assoc selected is empty: created new assoc';
+                $isnew = true;
             }
 
-            $locatman = Locatman::create([
-                'Fk_assocId'=>$assoc_id,
-                'Fk_locationId'=>$location_id,
-            ]);
+            if(!$isnew){
+                echo 'find in db and try to get the id of the locatman';
+                $locatman = get_object_vars(DB::table('locat_man')
+                ->select()
+                ->where('Fk_assocId','=',$assoc_id)
+                ->where('Fk_locationId','=',$location_id)
+                ->first())['Pk_locatmanId'];
+            }
+            else{
+                echo 'sssss';
+                $locatman = Locatman::create([
+                    'Fk_assocId'=>$assoc_id,
+                    'Fk_locationId'=>$location_id,
+                ])->id; 
+            }
             // $item = InsertItem::findOrFail($itemId);
             // $item->update(['isStored' => $location_id]);
-            
             $inventory = Inventory::create([
-                
                 'Fk_itemId' => $itemId,
                 'Fk_conditionsId' => $condition_id,
                 'Fk_locatmanId' => $locatman,
@@ -105,7 +119,10 @@ class InventoryController extends Controller
                 'loose' => $loose,
                 'Remarks' => $remarks,
             ]);
+            
+            
             DB::commit();
+            
             return response()->json([
                 'message' => 'Inventory created successfully',
                 'data' => $inventory
