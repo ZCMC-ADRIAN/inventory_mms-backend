@@ -54,25 +54,25 @@ class Table extends Controller
         }
     }
 
-    public function items(Request $req){
-        try{
-            $items = DB::table('inventories')
-                    ->join('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
-                    ->join('locat_man', 'inventories.Fk_locatmanId', '=', 'locat_man.Pk_locatmanId')
-                    ->join('location', 'locat_man.Fk_locationId', '=', 'location.Pk_locationId')
-                    ->join('types', 'items.Fk_typeId', '=', 'types.Pk_typeId')
-                    ->join('articles', 'types.Fk_articleId', '=', 'articles.Pk_articleId')
-                    ->join('variety', 'items.Fk_varietyId', '=', 'variety.Pk_varietyId')
-                    ->select('location_name', 'Quantity',DB::raw('CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc"'))
-                    ->where(DB::raw('CONCAT_WS(" ", article_name, type_name, model, variety, details2)'), $req->desc)
-                    ->get();
+    // public function items(Request $req){
+    //     try{
+    //         $items = DB::table('inventories')
+    //                 ->join('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
+    //                 ->join('locat_man', 'inventories.Fk_locatmanId', '=', 'locat_man.Pk_locatmanId')
+    //                 ->join('location', 'locat_man.Fk_locationId', '=', 'location.Pk_locationId')
+    //                 ->join('types', 'items.Fk_typeId', '=', 'types.Pk_typeId')
+    //                 ->join('articles', 'types.Fk_articleId', '=', 'articles.Pk_articleId')
+    //                 ->join('variety', 'items.Fk_varietyId', '=', 'variety.Pk_varietyId')
+    //                 ->select('location_name', 'Quantity',DB::raw('CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc"'))
+    //                 ->where(DB::raw('CONCAT_WS(" ", article_name, type_name, model, variety, details2)'), $req->desc)
+    //                 ->get();
 
-            return response()->json($items);
+    //         return response()->json($items);
 
-        } catch (\Throwable $th){
-            return response()->json([
-                'message' => $th
-            ]);
-        }
-    }
+    //     } catch (\Throwable $th){
+    //         return response()->json([
+    //             'message' => $th
+    //         ]);
+    //     }
+    // }
 }
