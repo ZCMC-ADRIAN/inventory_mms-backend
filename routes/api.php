@@ -24,6 +24,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/status', 'GetData\Fields@get_status');
         Route::get('/supplier', 'GetData\Fields@get_supplier');
 
+        //Variety
+        Route::get('/variety', 'VarietyController@index');
 
         //Item details
         Route::GET('/itemtable', 'ItemController@multiq');

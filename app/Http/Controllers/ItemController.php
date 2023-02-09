@@ -74,7 +74,7 @@ class ItemController extends Controller
             $items = DB::select("SELECT i.item_name as 'Item name', 
             b.brand_name as 'Brand',
             art.article_name as 'Article',
-            t.type_name as 'Item name', 
+            t.type_name as 'Type', 
             s.status_name as 'Status',
             i.model as 'Model', 
             m.manu_name as 'Manufacturer',
