@@ -46,5 +46,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/data-table', 'GetData\Table@data_table');
         Route::get('/available', 'GetData\Table@available');
         Route::get('/details', 'GetData\Table@details');
+
+        //Countries
+        Route::Get('/country', 'CountriesController@index');
     });
 });

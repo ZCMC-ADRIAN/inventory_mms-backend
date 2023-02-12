@@ -8,6 +8,8 @@ use App\Models\Associate;
 use App\Models\Inventory;
 use App\Models\Locatman;
 use App\Models\InsertItem;
+use App\Models\InsertCountry;
+use App\Models\InsertVariety;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -44,9 +46,9 @@ class InventoryController extends Controller
 
     public function store(Request $request)
     {
-//NEW
-// property_no
-// serial
+        //NEW
+        // property_no
+        // serial
 
         try {
 
@@ -65,6 +67,14 @@ class InventoryController extends Controller
             $quantity = $data['quantity'];
             $loose = $data['loose'];
             $remarks = $data['remarks'];
+            $EditCountry = $data['EditCountry'];
+            $EditVariety = $data['EditVariety'];
+            $Editacquisition = $data['Editacquisition'];
+            $Editdetails = $data['Editdetails'];
+            $Editexpiration = $data['Editexpiration'];
+            $Editwarranty = $data['Editwarranty'];
+            $countryValue = $data['countryValue'];
+            $varietyVal = $data['varietyVal'];
 
             $isnew = false;
             if (!$condition_id) {
@@ -91,23 +101,63 @@ class InventoryController extends Controller
                 $isnew = true;
             }
 
-            if(!$isnew){
+            if (!$isnew) {
                 echo 'find in db and try to get the id of the locatman';
                 $locatman = get_object_vars(DB::table('locat_man')
-                ->select()
-                ->where('Fk_assocId','=',$assoc_id)
-                ->where('Fk_locationId','=',$location_id)
-                ->first())['Pk_locatmanId'];
-            }
-            else{
+                    ->select()
+                    ->where('Fk_assocId', '=', $assoc_id)
+                    ->where('Fk_locationId', '=', $location_id)
+                    ->first())['Pk_locatmanId'];
+            } else {
                 echo 'sssss';
                 $locatman = Locatman::create([
-                    'Fk_assocId'=>$assoc_id,
-                    'Fk_locationId'=>$location_id,
-                ])->id; 
+                    'Fk_assocId' => $assoc_id,
+                    'Fk_locationId' => $location_id,
+                ])->id;
             }
-            // $item = InsertItem::findOrFail($itemId);
-            // $item->update(['isStored' => $location_id]);
+
+            if (
+                $EditCountry ||
+                $EditVariety ||
+                $Editacquisition ||
+                $Editdetails ||
+                $Editexpiration ||
+                $Editwarranty ||
+                $countryValue ||
+                $varietyVal
+            ) {
+                //find the items and copy the details and modify the needed:
+                $EditItem = InsertItem::find($itemId);
+
+                $newItem = $EditItem->replicate();
+                $newItem->save();
+                echo "Edited Items: ";
+                //make country if country id is not present and country value
+                //is present, if both are not present NO EDITED SHOULD EXIST
+                if (!$EditCountry && $countryValue) {
+                    echo "Created new Country";
+                    $EditCountry = InsertCountry::create(['country' => $countryValue])->id;
+                }
+                ////make make Variety same as countries condition 
+                if (!$EditVariety && $varietyVal) {
+                    echo "Created new Variety" . $varietyVal;
+                    $EditVariety = InsertVariety::create(['variety' => $varietyVal])->id;
+                }
+                //create Item
+                $newItem->details2 = $Editdetails ? $Editdetails : $EditItem->details2;
+                $newItem->warranty = $Editwarranty ? $Editwarranty : $EditItem->warranty;
+                $newItem->acquisition_date = $Editacquisition ? $Editacquisition : $EditItem->acquisition_date;
+                $newItem->expiration = $Editexpiration ? $Editexpiration : $EditItem->expiration;
+                $newItem->Fk_countryId = $EditCountry ? $EditCountry : $EditItem->Fk_countryId;
+                $newItem->Fk_varietyId = $EditVariety ? $EditVariety : $EditItem->Fk_varietyId;
+                //save create in items and save it in inventory
+
+                $newItem->save();
+                $itemId = $newItem->id;
+                dd($newItem);
+            }
+
+
             $inventory = Inventory::create([
                 'Fk_itemId' => $itemId,
                 'Fk_conditionsId' => $condition_id,
@@ -119,15 +169,13 @@ class InventoryController extends Controller
                 'loose' => $loose,
                 'Remarks' => $remarks,
             ]);
-            
-            
-            DB::commit();
-            
             return response()->json([
                 'message' => 'Inventory created successfully',
                 'data' => $inventory
             ], 201);
+            DB::commit();
         } catch (\Throwable $th) {
+            return $th;
             DB::rollBack();
             return response()->json([
                 'status' => 500,
