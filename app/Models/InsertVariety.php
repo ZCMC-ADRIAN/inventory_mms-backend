@@ -10,6 +10,6 @@ class InsertVariety extends Model
     use HasFactory;
     protected $table = 'variety';
     protected $primaryKey = 'Pk_varietyId';
-    protected $fillable = ['variety/color'];
+    protected $fillable = ['variety'];
     public $timestamps = false;
 }

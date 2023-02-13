@@ -65,7 +65,6 @@ class InventoryController extends Controller
             $serial = $data['serial'];
             $delivery_date = $data['delivery_date'];
             $quantity = $data['quantity'];
-            $loose = $data['loose'];
             $remarks = $data['remarks'];
             $EditCountry = $data['EditCountry'];
             $EditVariety = $data['EditVariety'];
@@ -130,31 +129,32 @@ class InventoryController extends Controller
                 $EditItem = InsertItem::find($itemId);
 
                 $newItem = $EditItem->replicate();
-                $newItem->save();
+                
                 echo "Edited Items: ";
                 //make country if country id is not present and country value
                 //is present, if both are not present NO EDITED SHOULD EXIST
                 if (!$EditCountry && $countryValue) {
                     echo "Created new Country";
-                    $EditCountry = InsertCountry::create(['country' => $countryValue])->id;
+                    $EditCount = InsertCountry::create(['country' => $countryValue]);
+                    $EditCountry = $EditCount->toArray()["Pk_countryId"];
                 }
                 ////make make Variety same as countries condition 
                 if (!$EditVariety && $varietyVal) {
                     echo "Created new Variety" . $varietyVal;
-                    $EditVariety = InsertVariety::create(['variety' => $varietyVal])->id;
+                    $EditVar = InsertVariety::create(['variety' => $varietyVal]);
+                    $EditVariety = $EditVar->toArray()["Pk_varietyId"];
                 }
                 //create Item
                 $newItem->details2 = $Editdetails ? $Editdetails : $EditItem->details2;
                 $newItem->warranty = $Editwarranty ? $Editwarranty : $EditItem->warranty;
                 $newItem->acquisition_date = $Editacquisition ? $Editacquisition : $EditItem->acquisition_date;
                 $newItem->expiration = $Editexpiration ? $Editexpiration : $EditItem->expiration;
-                $newItem->Fk_countryId = $EditCountry ? $EditCountry : $EditItem->Fk_countryId;
-                $newItem->Fk_varietyId = $EditVariety ? $EditVariety : $EditItem->Fk_varietyId;
+                $newItem->Fk_countryId = $EditCountry;
+                $newItem->Fk_varietyId = $EditVariety;
                 //save create in items and save it in inventory
 
                 $newItem->save();
-                $itemId = $newItem->id;
-                dd($newItem);
+                $itemId = $newItem->toArray()['Pk_itemId'];
             }
 
 
@@ -166,14 +166,14 @@ class InventoryController extends Controller
                 'Quantity' => $quantity,
                 'property_no' => $prop_no,
                 'serial' => $serial,
-                'loose' => $loose,
                 'Remarks' => $remarks,
             ]);
+           DB::commit();
             return response()->json([
                 'message' => 'Inventory created successfully',
                 'data' => $inventory
             ], 201);
-            DB::commit();
+             
         } catch (\Throwable $th) {
             return $th;
             DB::rollBack();
