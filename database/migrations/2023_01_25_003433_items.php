@@ -39,7 +39,7 @@ return new class extends Migration
             $table->string('details2')->nullable();
             $table->string('other')->nullable();
             // $table->string('serial')->nullable();
-            $table->string('warranty')->nullable();
+            $table->date('warranty')->nullable();
             $table->date('acquisition_date')->nullable();
             // $table->string('property_no')->nullable();
             $table->date('expiration')->nullable();
