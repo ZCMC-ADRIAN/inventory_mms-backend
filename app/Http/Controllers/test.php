@@ -10,25 +10,9 @@ class test extends Controller
     public function test(Request $req)
     {
         try {
-            if ($req->has('q')) {
-                $q = $req->input('q');
-                $l = $req->desc;
-                $items = DB::select('SELECT location_name, Quantity, CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc" from inventories INNER JOIN items ON inventories.Fk_itemId = items.Pk_itemId INNER JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId INNER JOIN location ON locat_man.Fk_locationId = location.Pk_locationId INNER JOIN types ON items.Fk_typeId = types.Pk_typeId INNER JOIN articles ON types.Fk_articleId = articles.Pk_articleId INNER JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId WHERE location_name LIKE ? AND CONCAT_WS(" ", article_name, type_name, model, variety, details2) LIKE ?',["%kLxlocation%", "%Drive External model is unique Blue details%"]);
-                return response()->json($items);
-            } else {
-                $items = DB::table('inventories')
-                    ->join('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
-                    ->join('locat_man', 'inventories.Fk_locatmanId', '=', 'locat_man.Pk_locatmanId')
-                    ->join('location', 'locat_man.Fk_locationId', '=', 'location.Pk_locationId')
-                    ->join('types', 'items.Fk_typeId', '=', 'types.Pk_typeId')
-                    ->join('articles', 'types.Fk_articleId', '=', 'articles.Pk_articleId')
-                    ->join('variety', 'items.Fk_varietyId', '=', 'variety.Pk_varietyId')
-                    ->select('location_name', 'Quantity', DB::raw('CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc"'))
-                    ->where(DB::raw('CONCAT_WS(" ", article_name, type_name, model, variety, details2)'), 'Drive External model is unique Blue details')
-                    ->get();
+            $detail = DB::select('SELECT property_no, serial, model, fundSource, unit, location_name, person_name FROM inventories LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId LEFT JOIN types ON items.Fk_typeId = types.Pk_typeId LEFT JOIN articles ON types.Fk_articleId = articles.Pk_articleId LEFT JOIN variety ON items.Fk_typeId = variety.Pk_varietyId LEFT JOIN brands ON items.Fk_brandId = brands.Pk_brandId LEFT JOIN manufacturers ON items.Fk_manuId = manufacturers.Pk_manuId LEFT JOIN suppliers ON items.Fk_supplierId = suppliers.Pk_supplierId LEFT JOIN countries ON items.Fk_countryId = countries.Pk_countryId LEFT JOIN units ON items.Fk_unitId = units.Pk_unitId LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN associate ON locat_man.Fk_assocId = associate.Pk_assocId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId where Pk_inventoryId = 1');
 
-                return response()->json($items);
-            }
+            return response()->json($detail);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/signup', [SignUp::class, 'SignUp']);
 Route::post('/signin', [SignUp::class, 'Login']);
+Route::get('/test', [test::class, 'test']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::namespace('App\Http\Controllers')->group(function () {
@@ -49,6 +50,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //Table Item List per Item Desc
         Route::get('/location-name', 'GetData\ItemTable@locations');
         Route::get('/item-list', 'GetData\ItemTable@items');
-
     });
 });

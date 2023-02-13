@@ -51,7 +51,7 @@ class ItemController extends Controller
                 return response()->json($items);
             } else {
                 $items = DB::select("
-                    SELECT items.Pk_itemId, items.item_name, b.brand_name, m.manu_name, 
+                    SELECT *, items.Pk_itemId, items.item_name, b.brand_name, m.manu_name, 
                     t.type_name, a.article_name, items.remarks FROM `items` 
                     LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
                     LEFT JOIN manufacturers m on items.Fk_manuId = m.Pk_manuId 
