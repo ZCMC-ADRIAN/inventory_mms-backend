@@ -58,8 +58,8 @@ class ItemSeeder extends Seeder
             'acquisition_date' => Carbon::now(),
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
-            'remarks' => "remarks",
-            "created_at" => Carbon::now(),
+            'remarks' => 'remarks',
+            'created_at' => Carbon::now(),
             
         ]);
         DB::table('items')->insert([
@@ -80,8 +80,8 @@ class ItemSeeder extends Seeder
             'acquisition_date' => Carbon::now(),
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
-            'remarks' => "remarks",
-            "created_at" => Carbon::now(),
+            'remarks' => 'remarks',
+            'created_at' => Carbon::now(),
             
         ]);
         DB::table('items')->insert([
@@ -102,8 +102,8 @@ class ItemSeeder extends Seeder
             'acquisition_date' => Carbon::now(),
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
-            'remarks' => "remarks",
-            "created_at" => Carbon::now(),
+            'remarks' => 'remarks',
+            'created_at' => Carbon::now(),
             
         ]);
         DB::table('items')->insert([
@@ -124,8 +124,8 @@ class ItemSeeder extends Seeder
             'acquisition_date' => Carbon::now(),
             'expiration' => Carbon::now(),
             'fundSource' => 'Donation',
-            'remarks' => "remarks",
-            "created_at" => Carbon::now(),
+            'remarks' => 'remarks',
+            'created_at' => Carbon::now(),
             
         ]);
         
