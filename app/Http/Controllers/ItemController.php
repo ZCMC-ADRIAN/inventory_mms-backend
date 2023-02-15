@@ -42,32 +42,28 @@ class ItemController extends Controller
                 # search item
                 $q = $request->input('q');
                 $items = DB::select("
-                    SELECT items.Pk_itemId, items.item_name, b.brand_name,
-                     m.manu_name, t.type_name, a.article_name, 
-                     items.remarks, v.variety,co.country,items.details2, 
-                     items.warranty,items.acquisition_date,items.expiration 
-                     FROM `items` 
-                     LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
-                     LEFT JOIN manufacturers m on items.Fk_manuId = m.Pk_manuId 
-                     LEFT JOIN types t on items.Fk_typeId = t.Pk_typeId 
-                     LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId 
-                     LEFT JOIN variety v on items.Fk_varietyId = v.Pk_varietyId 
-                     LEFT JOIN countries co on items.Fk_countryId = co.Pk_countryId 
+                    SELECT items.Pk_itemId,a.article_name as 'item name', items.item_name as 'Item desc', b.brand_name, m.manu_name, t.type_name, items.remarks, v.variety,co.country,items.details2, 
+                    items.warranty,items.acquisition_date,items.expiration 
+                    FROM `items` 
+                    LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
+                    LEFT JOIN manufacturers m on items.Fk_manuId = m.Pk_manuId 
+                    LEFT JOIN types t on items.Fk_typeId = t.Pk_typeId 
+                    LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId 
+                    LEFT JOIN variety v on items.Fk_varietyId = v.Pk_varietyId 
+                    LEFT JOIN countries co on items.Fk_countryId = co.Pk_countryId  
                      WHERE items.item_name LIKE ?;", ["%$q%"]);
                 return response()->json($items);
             } else {
                 $items = DB::select("
-                    SELECT items.Pk_itemId, items.item_name, b.brand_name,
-                     m.manu_name, t.type_name, a.article_name, 
-                     items.remarks, v.variety,co.country,items.details2, 
-                     items.warranty,items.acquisition_date,items.expiration 
-                     FROM `items` 
-                     LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
-                     LEFT JOIN manufacturers m on items.Fk_manuId = m.Pk_manuId 
-                     LEFT JOIN types t on items.Fk_typeId = t.Pk_typeId 
-                     LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId 
-                     LEFT JOIN variety v on items.Fk_varietyId = v.Pk_varietyId 
-                     LEFT JOIN countries co on items.Fk_countryId = co.Pk_countryId;");
+                    SELECT items.Pk_itemId,a.article_name as 'item name', items.item_name as 'Item desc', b.brand_name, m.manu_name, t.type_name, items.remarks, v.variety,co.country,items.details2, 
+                    items.warranty,items.acquisition_date,items.expiration 
+                    FROM `items` 
+                    LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
+                    LEFT JOIN manufacturers m on items.Fk_manuId = m.Pk_manuId 
+                    LEFT JOIN types t on items.Fk_typeId = t.Pk_typeId 
+                    LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId 
+                    LEFT JOIN variety v on items.Fk_varietyId = v.Pk_varietyId 
+                    LEFT JOIN countries co on items.Fk_countryId = co.Pk_countryId;");
                 return response()->json($items);
             }
         } catch (\Throwable $th) {
