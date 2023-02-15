@@ -19,7 +19,7 @@ class SupplierSeeder extends Seeder
         //Pk_supplierId	supplier
         DB::table('suppliers')->insert([
             "Pk_supplierId"=>1,
-            'supplier' => "DOH",
+            'supplier' => "EUROMED",
             'mode' => 1,
             "created_at" => Carbon::now(),
             
@@ -27,7 +27,7 @@ class SupplierSeeder extends Seeder
         DB::table('suppliers')->insert([
             "Pk_supplierId"=>2,
             'mode' => 0,
-            'supplier' => "DONOR pepito",
+            'supplier' => "DOH",
             "created_at" => Carbon::now(),
         ]);
     }

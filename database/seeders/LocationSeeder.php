@@ -19,32 +19,17 @@ class LocationSeeder extends Seeder
     {
         //\
         DB::table('location')->insert([
-            "location_name" => Str::random(3) . "location",
+            "location_name" => 'Eye Center',
             "created_at" => Carbon::now(),
             
         ]);
         DB::table('location')->insert([
-            "location_name" => Str::random(3) . "location",
+            "location_name" => 'OMCC',
             "created_at" => Carbon::now(),
             
         ]);
         DB::table('location')->insert([
-            "location_name" => Str::random(3) . "location",
-            "created_at" => Carbon::now(),
-            
-        ]);
-        DB::table('location')->insert([
-            "location_name" => Str::random(3) . "location",
-            "created_at" => Carbon::now(),
-            
-        ]);
-        DB::table('location')->insert([
-            "location_name" => Str::random(3) . "location",
-            "created_at" => Carbon::now(),
-            
-        ]);
-        DB::table('location')->insert([
-            "location_name" => Str::random(3) . "location",
+            "location_name" => 'OPCEN',
             "created_at" => Carbon::now(),
             
         ]);

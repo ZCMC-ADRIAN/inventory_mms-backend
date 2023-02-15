@@ -20,7 +20,7 @@ class UnitSeeder extends Seeder
         //
         DB::table('units')->insert([
             "Pk_unitId"=>1,
-            'unit' => "pcs",
+            'unit' => "PCS",
             "created_at" => Carbon::now(),
             
         ]);

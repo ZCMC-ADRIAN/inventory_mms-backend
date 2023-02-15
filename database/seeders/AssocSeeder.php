@@ -30,7 +30,7 @@ class AssocSeeder extends Seeder
         ]);
         DB::table('associate')->insert([
             "Pk_assocId"=> 3,
-            "person_name" => "La voja suput",
+            "person_name" => "Adrian Agcaoili",
             "created_at" => Carbon::now(),
         ]);
     }

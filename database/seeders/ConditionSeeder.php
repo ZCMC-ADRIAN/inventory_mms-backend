@@ -22,37 +22,12 @@ class ConditionSeeder extends Seeder
 
         DB::table('conditions')->insert([
             "Pk_conditionsId"=>1,
-            "conditions_name" => Str::random(2) . "condition",
+            "conditions_name" => 'Good',
             "created_at" => Carbon::now(),
         ]);
         DB::table('conditions')->insert([
             "Pk_conditionsId"=>2,
-            "conditions_name" => Str::random(2) . "condition",
-            "created_at" => Carbon::now(),
-        ]);
-        DB::table('conditions')->insert([
-            "Pk_conditionsId"=>3,
-            "conditions_name" => Str::random(2) . "condition",
-            "created_at" => Carbon::now(),
-        ]);
-        DB::table('conditions')->insert([
-            "Pk_conditionsId"=>4,
-            "conditions_name" => Str::random(2) . "condition",
-            "created_at" => Carbon::now(),
-        ]);
-        DB::table('conditions')->insert([
-            "Pk_conditionsId"=>5,
-            "conditions_name" => Str::random(2) . "condition",
-            "created_at" => Carbon::now(),
-        ]);
-        DB::table('conditions')->insert([
-            "Pk_conditionsId"=>6,
-            "conditions_name" => Str::random(2) . "condition",
-            "created_at" => Carbon::now(),
-        ]);
-        DB::table('conditions')->insert([
-            "Pk_conditionsId"=>7,
-            "conditions_name" => Str::random(2) . "condition",
+            "conditions_name" => 'Bad',
             "created_at" => Carbon::now(),
         ]);
     }
