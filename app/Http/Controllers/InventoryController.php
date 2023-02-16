@@ -66,14 +66,14 @@ class InventoryController extends Controller
             $delivery_date = $data['delivery_date'];
             $quantity = $data['quantity'];
             $remarks = $data['remarks'];
-            $EditCountry = $data['EditCountry'];
-            $EditVariety = $data['EditVariety'];
-            $Editacquisition = $data['Editacquisition'];
-            $Editdetails = $data['Editdetails'];
-            $Editexpiration = $data['Editexpiration'];
-            $Editwarranty = $data['Editwarranty'];
-            $countryValue = $data['countryValue'];
-            $varietyVal = $data['varietyVal'];
+            // $EditCountry = $data['EditCountry'];
+            // $EditVariety = $data['EditVariety'];
+            // $Editacquisition = $data['Editacquisition'];
+            // $Editdetails = $data['Editdetails'];
+            // $Editexpiration = $data['Editexpiration'];
+            // $Editwarranty = $data['Editwarranty'];
+            // $countryValue = $data['countryValue'];
+            // $varietyVal = $data['varietyVal'];
 
             $isnew = false;
             if (!$condition_id) {
@@ -115,47 +115,47 @@ class InventoryController extends Controller
                 ])->id;
             }
 
-            if (
-                $EditCountry ||
-                $EditVariety ||
-                $Editacquisition ||
-                $Editdetails ||
-                $Editexpiration ||
-                $Editwarranty ||
-                $countryValue ||
-                $varietyVal
-            ) {
-                //find the items and copy the details and modify the needed:
-                $EditItem = InsertItem::find($itemId);
+            // if (
+            //     $EditCountry ||
+            //     $EditVariety ||
+            //     $Editacquisition ||
+            //     $Editdetails ||
+            //     $Editexpiration ||
+            //     $Editwarranty ||
+            //     $countryValue ||
+            //     $varietyVal
+            // ) {
+            //     //find the items and copy the details and modify the needed:
+            //     $EditItem = InsertItem::find($itemId);
 
-                $newItem = $EditItem->replicate();
+            //     $newItem = $EditItem->replicate();
                 
-                echo "Edited Items: ";
-                //make country if country id is not present and country value
-                //is present, if both are not present NO EDITED SHOULD EXIST
-                if (!$EditCountry && $countryValue) {
-                    echo "Created new Country";
-                    $EditCount = InsertCountry::create(['country' => $countryValue]);
-                    $EditCountry = $EditCount->toArray()["Pk_countryId"];
-                }
-                ////make make Variety same as countries condition 
-                if (!$EditVariety && $varietyVal) {
-                    echo "Created new Variety" . $varietyVal;
-                    $EditVar = InsertVariety::create(['variety' => $varietyVal]);
-                    $EditVariety = $EditVar->toArray()["Pk_varietyId"];
-                }
-                //create Item
-                $newItem->details2 = $Editdetails ? $Editdetails : $EditItem->details2;
-                $newItem->warranty = $Editwarranty ? $Editwarranty : $EditItem->warranty;
-                $newItem->acquisition_date = $Editacquisition ? $Editacquisition : $EditItem->acquisition_date;
-                $newItem->expiration = $Editexpiration ? $Editexpiration : $EditItem->expiration;
-                $newItem->Fk_countryId = $EditCountry;
-                $newItem->Fk_varietyId = $EditVariety;
-                //save create in items and save it in inventory
+            //     echo "Edited Items: ";
+            //     //make country if country id is not present and country value
+            //     //is present, if both are not present NO EDITED SHOULD EXIST
+            //     if (!$EditCountry && $countryValue) {
+            //         echo "Created new Country";
+            //         $EditCount = InsertCountry::create(['country' => $countryValue]);
+            //         $EditCountry = $EditCount->toArray()["Pk_countryId"];
+            //     }
+            //     ////make make Variety same as countries condition 
+            //     if (!$EditVariety && $varietyVal) {
+            //         echo "Created new Variety" . $varietyVal;
+            //         $EditVar = InsertVariety::create(['variety' => $varietyVal]);
+            //         $EditVariety = $EditVar->toArray()["Pk_varietyId"];
+            //     }
+            //     //create Item
+            //     $newItem->details2 = $Editdetails ? $Editdetails : $EditItem->details2;
+            //     $newItem->warranty = $Editwarranty ? $Editwarranty : $EditItem->warranty;
+            //     $newItem->acquisition_date = $Editacquisition ? $Editacquisition : $EditItem->acquisition_date;
+            //     $newItem->expiration = $Editexpiration ? $Editexpiration : $EditItem->expiration;
+            //     $newItem->Fk_countryId = $EditCountry;
+            //     $newItem->Fk_varietyId = $EditVariety;
+            //     //save create in items and save it in inventory
 
-                $newItem->save();
-                $itemId = $newItem->toArray()['Pk_itemId'];
-            }
+            //     $newItem->save();
+            //     $itemId = $newItem->toArray()['Pk_itemId'];
+            // }
 
 
             $inventory = Inventory::create([
