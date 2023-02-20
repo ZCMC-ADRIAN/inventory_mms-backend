@@ -106,7 +106,7 @@ class InventoryController extends Controller
                     ->select()
                     ->where('Fk_assocId', '=', $assoc_id)
                     ->where('Fk_locationId', '=', $location_id)
-                    ->first())['Pk_locatmanId'];
+                    ->all())['Pk_locatmanId'];
             } else {
                 echo 'sssss';
                 $locatman = Locatman::create([

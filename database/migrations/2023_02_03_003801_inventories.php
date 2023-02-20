@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreign('Fk_ItemId')->references('Pk_itemId')->on('items');
             $table->foreign('Fk_conditionsId')->references('PK_conditionsId')->on('conditions');
             $table->foreign('Fk_locatmanId')->references('Pk_locatmanId')->on('locat_man')->nullable();
-
+            
             // $table->string('IAR_num')->nullable();
             // $table->date('IAR_date')->nullable();
             $table->date('Delivery_date')->nullable();
@@ -41,6 +41,7 @@ return new class extends Migration
      *
      * @return void
      */
+
     public function down()
     {
         //
