@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             AcquisionSeeder::class,
             AcquisourceSeeder::class,
             AcquiModeSeeder::class,
+            ItemCatSeeder::class,
             ItemSeeder::class,
             LocationSeeder::class,
             ConditionSeeder::class,
