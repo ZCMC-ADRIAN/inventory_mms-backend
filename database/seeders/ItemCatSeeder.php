@@ -20,11 +20,11 @@ class itemCatSeeder extends Seeder
         //
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 1,
-            "itemCateg_name" => "Medical Equipment"
+            "itemCateg_name" => "Medical"
         ]);
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 2,
-            "itemCateg_name" => "Janitorial Equipment"
+            "itemCateg_name" => "Janitorial"
         ]);
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 3,
@@ -32,7 +32,11 @@ class itemCatSeeder extends Seeder
         ]);
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 4,
-            "itemCateg_name" => "other"
+            "itemCateg_name" => "Furniture"
+        ]);
+        DB::table('itemCateg')->insert([
+            "Pk_itemCategId" => 5,
+            "itemCateg_name" => "Other"
         ]);
     }
 }
