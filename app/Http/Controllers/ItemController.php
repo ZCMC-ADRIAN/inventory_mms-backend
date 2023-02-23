@@ -19,11 +19,11 @@ class ItemController extends Controller
             if ($request->has('q')) {
                 # search item
                 $q = $request->input('q');
-                $items = DB::select("SELECT COUNT(items.item_name) as total, items.item_name from items WHERE items.item_name LIKE ? GROUP by items.item_name;", ["%$q%"]);
+                $items = DB::select("SELECT COUNT(articles.article_name) as total, articles.article_name from articles WHERE articles.article_name LIKE ? GROUP by articles.article_name;", ["%$q%"]);
                 return response()->json($items);
             } else {
                 # code... SELECT COUNT(items.item_name) as total, items.item_name from items GROUP by items.item_name;
-                $items = DB::select("SELECT COUNT(items.item_name) as total, items.item_name from items  GROUP by item_name;");
+                $items = DB::select("SELECT COUNT(articles.article_name) as total, articles.article_name from articles  GROUP by article_name;");
                 return response()->json($items);
             }
         } catch (\Throwable $th) {
@@ -42,7 +42,7 @@ class ItemController extends Controller
                 # search item
                 $q = $request->input('q');
                 $items = DB::select("
-                    SELECT items.Pk_itemId,a.article_name as 'item name', items.item_name as 'Item desc', b.brand_name, m.manu_name, t.type_name, items.remarks, v.variety,co.country,items.details2, 
+                    SELECT items.Pk_itemId,a.article_name as 'item name', a.article_name as 'article name', b.brand_name, m.manu_name, t.type_name, items.remarks, v.variety,co.country,items.details2, 
                     items.warranty,items.acquisition_date,items.expiration 
                     FROM `items` 
                     LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
@@ -51,7 +51,7 @@ class ItemController extends Controller
                     LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId 
                     LEFT JOIN variety v on items.Fk_varietyId = v.Pk_varietyId 
                     LEFT JOIN countries co on items.Fk_countryId = co.Pk_countryId 
-                     WHERE items.item_name LIKE ? ORDER BY items.created_at DESC;", ["%$q%"]);
+                     WHERE a.article_name LIKE ? ORDER BY items.created_at DESC;", ["%$q%"]);
                 return response()->json($items);
             } 
 
@@ -67,7 +67,7 @@ class ItemController extends Controller
     public function query($id)
     {
         try {
-            $items = DB::select("SELECT i.item_name as 'Item name', 
+            $items = DB::select("SELECT 
             b.brand_name as 'Brand',
             art.article_name as 'Article',
             t.type_name as 'Type', 
