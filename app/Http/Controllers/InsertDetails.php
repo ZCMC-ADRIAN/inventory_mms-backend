@@ -20,8 +20,6 @@ class InsertDetails extends Controller
     public function insert_details(Request $req)
     {
         try {
-            $articles = DB::table('articles')->join('types', 'articles.Pk_articleId', '=', 'types.Fk_articleId')->where('article_name', $req->article)->orWhere('type_name', $req->type)->count();
-            $varieties = DB::table('variety')->where('variety', $req->variant)->count();
 
             $article = new InsertArticle();
             $article->article_name = $req->article;

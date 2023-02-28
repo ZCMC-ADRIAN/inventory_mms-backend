@@ -63,7 +63,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/location-name', 'GetData\ItemTable@locations');
         Route::get('/item-list', 'GetData\ItemTable@items');
 
-        
+
 
     });
 });
