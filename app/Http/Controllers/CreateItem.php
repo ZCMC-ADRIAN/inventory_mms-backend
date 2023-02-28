@@ -28,6 +28,8 @@ class CreateItem extends Controller
             $variety = DB::table('variety')->where('variety', $req->variant)->count();
             $supplier = DB::table('suppliers')->where('supplier', $req->supplier)->count();
             $manu = DB::table('manufacturers')->where('manu_name', $req->manufacturer)->count();
+            $category = DB::table('itemcateg')->select('*')->where('itemCateg_name', $req->category)->get();
+            
             $brandId = null;
             $countryId = null;
             $unitId = null;
@@ -36,7 +38,12 @@ class CreateItem extends Controller
             $supplierId = null;
             $manuId = null;
             $articleId = null;
+            $categId = null;
             $mode = null;
+
+            foreach ($category as $a){
+                $categId = $a->Pk_itemCategId;
+            }
 
             if ($req->brand != '') {
                 if ($brand < 1) {
@@ -180,6 +187,7 @@ class CreateItem extends Controller
             $item->Fk_varietyId = $varietyId;
             $item->Fk_brandId = $brandId;
             $item->Fk_countryId = $countryId;
+            $item->Fk_itemCategId = $categId;
             $item->item_name = $req->descOrig;
             $item->model = $req->model;
             $item->details2 = $req->details;
