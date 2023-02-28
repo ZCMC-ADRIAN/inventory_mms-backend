@@ -175,7 +175,6 @@ class InventoryController extends Controller
             ], 201);
              
         } catch (\Throwable $th) {
-            return $th;
             DB::rollBack();
             return response()->json([
                 'status' => 500,
