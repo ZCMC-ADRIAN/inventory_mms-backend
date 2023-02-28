@@ -89,10 +89,10 @@ class MessedUpController extends Controller
                     $details=get_object_vars($dataa)["details2"];
                     $other=get_object_vars($dataa)["other"];
                     //checkif props exist and stop
-                    //status
-                    $checkStatus=DB::table('status')
-                    ->select()
-                    ->where('status_name', '=', get_object_vars($dataa)["Status"])->first();
+                    // //status
+                    // $checkStatus=DB::table('status')
+                    // ->select()
+                    // ->where('status_name', '=', get_object_vars($dataa)["Status"])->first();
                     //brand
                     //manufacturer
                     //country
@@ -248,8 +248,8 @@ class MessedUpController extends Controller
             }
             }catch (\Throwable $th) {
 DB::rollBack();
+return $th;
             return response()->json([
-                
                 'status' => 500,
                 'message' => $th -> getMessage(),
             ]);
