@@ -232,7 +232,7 @@ class CreateItem extends Controller
             $item->cost = $req->cost;
             $item->fundSource = $req->acquisitionMode;
             $item->save();
-            
+
             if($itemCheck&&$canContinue){
                 //echo 'existingg and return the existed id of item';
                 $itemCheck = DB::table('items')
@@ -293,9 +293,9 @@ class CreateItem extends Controller
             
         } catch (\Throwable $th) {
             DB::rollBack();
-            return $th;
             return response()->json([
-                'message' => $th
+                'message' => $th,
+                'error' => "please check your ITEM details"
             ]);
         }
     }

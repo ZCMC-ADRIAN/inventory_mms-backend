@@ -106,7 +106,7 @@ class InventoryController extends Controller
                     ->select()
                     ->where('Fk_assocId', '=', $assoc_id)
                     ->where('Fk_locationId', '=', $location_id)
-                    ->all())['Pk_locatmanId'];
+                    ->first())['Pk_locatmanId'];
             } else {
                 echo 'sssss';
                 $locatman = Locatman::create([
@@ -175,7 +175,6 @@ class InventoryController extends Controller
             ], 201);
              
         } catch (\Throwable $th) {
-            return $th;
             DB::rollBack();
             return response()->json([
                 'status' => 500,
