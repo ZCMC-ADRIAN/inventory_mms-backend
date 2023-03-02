@@ -1,5 +1,5 @@
 <?php
-
+////AKEL OBJECT MUST PASS IN AN ARRAY DAW
 namespace App\Http\Controllers\helper;
 
 use App\Http\Controllers\Controller;
@@ -63,12 +63,28 @@ class MessedUpController extends Controller
                    $country=null;
                    $waranty=null;
                    $unit=null;
-                $dataa = DB::table('items')
-                    ->select()
-                    ->where('item_name', '=', $data[$i]["Item Description"])->first();
+                $dataa = DB::select("
+                        SELECT Pk_itemId,items.*, CONCAT(
+                        REPLACE(COALESCE(articles.article_name, ''), ' ', ''),
+                        REPLACE(COALESCE(types.type_name, ''), ' ', ''),
+                        REPLACE(COALESCE(items.model, ''), ' ', ''),
+                        REPLACE(COALESCE(variety.variety, ''), ' ', ''),
+                        REPLACE(COALESCE(items.details2, ''), ' ', ''),
+                        REPLACE(COALESCE(items.other, ''), ' ', '')
+                        ) as Concatvalue
+                        FROM `items`
+                        LEFT JOIN types ON Fk_typeId = types.Pk_typeId 
+                        LEFT JOIN articles ON types.Fk_articleId = articles.Pk_articleId 
+                        LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId 
+                        HAVING Concatvalue = ?;
+                    ",[$data[$i]["Item Description"]]);
+                    // ->having('item_name', '=', $data[$i]["Item Description"])->first();
                 
                 if($dataa){
-
+                    // if($i+2 == 34){
+                    //     dd($dataa);
+                    // }
+                    dd($dataa);
                     $isArticleId = null;
                     $article = DB::table('articles')
                     ->select()
@@ -290,10 +306,10 @@ class MessedUpController extends Controller
                     $item->Fk_countryId = $country;
                     $item->Fk_sourcemodeId = 3;
                     $item->Fk_itemCategId = 1;
-                    $item->item_name = $data[$i]["Article"];
-                    $item->model = $model;
-                    $item->details2 = $details;
-                    $item->other = $other;
+                    $item->item_name = $data[$i]["Article"]?$data[$i]["Article"]:null;
+                    $item->model = $data[$i]["Model"]?$data[$i]["Model"]:null;
+                    $item->details2 = $data[$i]["Details2"]?$data[$i]["Details2"]:null;
+                    $item->other = $data[$i]["Other"]?$data[$i]["Other"]:null;
                     $item->fundSource = "Donation";
                     $item->save();
                 }
@@ -311,7 +327,7 @@ class MessedUpController extends Controller
             }catch (\Throwable $th) {
             DB::rollBack();
 //dd($variety);dd($trying);
-
+ dd($dataa);
 return $th;
             return response()->json([
                 
