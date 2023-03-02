@@ -27,5 +27,10 @@ class acquiModeSeeder extends Seeder
             'Fk_sourceId' => 1,
             "created_at" => Carbon::now(),
         ]);
+        DB::table('acquimode')->insert([
+            'Fk_aquisId' => 2,
+            'Fk_sourceId' => 3,
+            "created_at" => Carbon::now(),
+        ]);
     }
 }

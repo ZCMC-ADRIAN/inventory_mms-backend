@@ -40,7 +40,7 @@ return new class extends Migration
 
             $table->string('item_name')->nullable();
             $table->string('model')->nullable();
-            $table->string('details2')->nullable();
+            $table->string('details2',1000)->nullable();
             $table->string('other')->nullable();
             // $table->string('serial')->nullable();
             $table->date('warranty')->nullable();

@@ -20,7 +20,7 @@ class itemCatSeeder extends Seeder
         //
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 1,
-            "itemCateg_name" => "Medical"
+            "itemCateg_name" => "Equipment"
         ]);
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 2,
