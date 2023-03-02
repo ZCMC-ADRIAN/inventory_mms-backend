@@ -25,5 +25,9 @@ class acquisourceSeeder extends Seeder
             'source_name' => "Dennis Hardware",
             "created_at" => Carbon::now(),
         ]);
+        DB::table('acquisource')->insert([
+            'source_name' => NULL,
+            "created_at" => Carbon::now(),
+        ]);
     }
 }

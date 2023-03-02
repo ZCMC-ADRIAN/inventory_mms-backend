@@ -193,6 +193,7 @@ class CreateItem extends Controller
             $types->type_name = $req->type;
             $types->Fk_articleId = $articleId;
             $types->save();
+
             $itemCheck = DB::table('items')
             //->where('Fk_typeId', $types->Pk_typeId)
             ->where('Fk_statusId', $statusId)
@@ -212,26 +213,26 @@ class CreateItem extends Controller
             ->where('cost',$req->cost)
             ->exists();
 
-            $item = new InsertItem();
-            $item->Fk_typeId = $types->Pk_typeId;
-            $item->Fk_statusId = $statusId;
-            $item->Fk_manuId = $manuId;
-            $item->Fk_supplierId = $supplierId;
-            $item->Fk_unitId = $unitId;
-            $item->Fk_varietyId = $varietyId;
-            $item->Fk_brandId = $brandId;
-            $item->Fk_countryId = $countryId;
-            $item->Fk_itemCategId = $categId;
-            $item->item_name = $req->descOrig;
-            $item->model = $req->model;
-            $item->details2 = $req->details;
-            $item->other = $req->other;
-            $item->warranty = $req->warranty;
-            $item->acquisition_date = $req->acquisition;
-            $item->expiration = $req->expiration;
-            $item->cost = $req->cost;
-            $item->fundSource = $req->acquisitionMode;
-            $item->save();
+            // $item = new InsertItem();
+            // $item->Fk_typeId = $types->Pk_typeId;
+            // $item->Fk_statusId = $statusId;
+            // $item->Fk_manuId = $manuId;
+            // $item->Fk_supplierId = $supplierId;
+            // $item->Fk_unitId = $unitId;
+            // $item->Fk_varietyId = $varietyId;
+            // $item->Fk_brandId = $brandId;
+            // $item->Fk_countryId = $countryId;
+            // $item->Fk_itemCategId = $categId;
+            // $item->item_name = $req->descOrig;
+            // $item->model = $req->model;
+            // $item->details2 = $req->details;
+            // $item->other = $req->other;
+            // $item->warranty = $req->warranty;
+            // $item->acquisition_date = $req->acquisition;
+            // $item->expiration = $req->expiration;
+            // $item->cost = $req->cost;
+            // $item->fundSource = $req->acquisitionMode;
+            // $item->save();
 
             if($itemCheck&&$canContinue){
                 //echo 'existingg and return the existed id of item';
