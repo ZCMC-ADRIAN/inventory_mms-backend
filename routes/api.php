@@ -64,7 +64,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/location-name', 'GetData\ItemTable@locations');
         Route::get('/item-list', 'GetData\ItemTable@items');
 
-
+        //Printing of QR Code
+        Route::get('/locations', 'GetData\QRCode@locations');
+        Route::get('/qr', 'GetData\QRCode@QRItems');
+        Route::get('/qr-data', 'GetData\QRCode@QRData');
 
     });
 });
