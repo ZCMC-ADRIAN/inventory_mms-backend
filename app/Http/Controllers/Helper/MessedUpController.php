@@ -22,7 +22,8 @@ class MessedUpController extends Controller
         try{
             DB::beginTransaction();
             $file=$request->file('csv');
-
+            $numberofnew = 0;
+            $numberofExisted = 0;
             $header = null;
             $data = array();
             $trying;
@@ -77,15 +78,25 @@ class MessedUpController extends Controller
                         LEFT JOIN articles ON types.Fk_articleId = articles.Pk_articleId 
                         LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId 
                         HAVING Concatvalue = ?;
-                    ",[$data[$i]["Item Description"]]);
+                    ",[str_replace(" ","",$data[$i]["Item Description"])]);
                     // ->having('item_name', '=', $data[$i]["Item Description"])->first();
                 
                 if($dataa){
                     // if($i+2 == 34){
                     //     dd($dataa);
                     // }
-                    dd($dataa);
+                    // dd($dataa);
+
+                    
+                    // $obj = new \stdClass();
+
+                    // foreach($dataa as $key => $value) {
+                    //     $obj->$key = $value;
+                    // }
+                    $dataa = $dataa[0];
+                    // $dataa = $obj;
                     $isArticleId = null;
+                   
                     $article = DB::table('articles')
                     ->select()
                     ->where('article_name', '=', $data[$i]["Article"]?$data[$i]["Article"]:null)->first();
@@ -97,7 +108,7 @@ class MessedUpController extends Controller
                         $isArticleId = $article->Pk_articleId;
                     }
                    $trying = $article;
-                    
+                   
                     $variety= get_object_vars($dataa)["Fk_varietyId"];
                     $model=get_object_vars($dataa)["model"];
                     $details=get_object_vars($dataa)["details2"];
@@ -295,6 +306,7 @@ class MessedUpController extends Controller
                 // }
                 if($hasArticle&&$itemCheck){
                     echo 'item table is already exist '.$i+2;
+                    $numberofExisted += 1;
                 }else{
                      
                     $item->Fk_typeId = $type;
@@ -312,6 +324,7 @@ class MessedUpController extends Controller
                     $item->other = $data[$i]["Other"]?$data[$i]["Other"]:null;
                     $item->fundSource = "Donation";
                     $item->save();
+                    $numberofnew += 1;
                 }
                 
                 // echo`row is imported`. $i +1 ;
@@ -323,11 +336,15 @@ class MessedUpController extends Controller
                 
                 DB::commit();
             }
-            DB::rollBack();
+            echo ("succesfully done new: ".$numberofnew);
+            echo ("succesfully done existed: ".$numberofExisted);
+            echo ("succesfully done total read: ".$numberofExisted + $numberofnew);
+            //DB::rollBack();
             }catch (\Throwable $th) {
-            DB::rollBack();
+            //DB::rollBack();
 //dd($variety);dd($trying);
- dd($dataa);
+// echo $i+2;
+//  dd($dataa);
 return $th;
             return response()->json([
                 
