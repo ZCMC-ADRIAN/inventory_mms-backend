@@ -64,10 +64,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/location-name', 'GetData\ItemTable@locations');
         Route::get('/item-list', 'GetData\ItemTable@items');
 
+        //Edit Details
+        Route::get('edit-details', 'GetData\Fields@editDetails');
+        Route::post('save-item', 'EditItems@editItem');
+        Route::post('save-location', 'EditItems@editLocation');
+
         //Printing of QR Code
         Route::get('/locations', 'GetData\QRCode@locations');
         Route::get('/qr', 'GetData\QRCode@QRItems');
         Route::get('/qr-data', 'GetData\QRCode@QRData');
 
+        //Printable Report
+        Route::get('/report', 'GetData\Table@report');
+
+        //Printing Property Tag
+        Route::get('/tags', 'GetData\PropertyTag@property_tag');
     });
 });
