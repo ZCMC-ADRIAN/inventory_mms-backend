@@ -67,7 +67,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //Edit Details
         Route::get('edit-details', 'GetData\Fields@editDetails');
         Route::post('save-item', 'EditItems@editItem');
-        Route::post('save-location', 'EditItems@editLocation');
+        Route::post('save-location', 'EditLocation@editLocation');
 
         //Printing of QR Code
         Route::get('/locations', 'GetData\QRCode@locations');

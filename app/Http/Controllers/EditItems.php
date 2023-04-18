@@ -6,7 +6,10 @@ use App\Models\InsertBrand;
 use App\Models\InsertArticle;
 use App\Models\InsertTypes;
 use App\Models\InsertVariety;
+use App\Models\InsertCountry;
 use App\Models\InsertManu;
+use App\Models\InsertSupplier;
+use App\Models\InsertUnit;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
@@ -24,6 +27,100 @@ class EditItems extends Controller
             $category = DB::table('itemcateg')->where('itemCateg_name', $req->category)->count();
             $variety = DB::table('variety')->where('variety', $req->variant)->count();
             $manu = DB::table('manufacturers')->where('manu_name', $req->manufacturer)->count();
+            $country = DB::table('countries')->where('country', $req->countries)->count();
+            $unit = DB::table('units')->where('unit', $req->unit)->count();
+            $supplier = DB::table('suppliers')->where('supplier', $req->supplier)->count();
+
+            //Update Remarks
+            if($req->remarks){
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['remarks' => $req->remarks]);
+            }
+
+            //Update Expiration
+            if($req->expiration){
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['expiration' => $req->expiration]);
+            }
+
+            //Update Cost
+            if ($req->cost != ''){
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['cost' => $req->cost]);
+            }
+
+            //Update Supplier
+            if ($req->supplier != '') {
+                if($req->acquiMode === 'Purchase'){
+                    $mode = 0;
+                }else if($req->acquiMode === 'Donation'){
+                    $mode = 1;
+                }
+                if ($supplier < 1) {
+                    $supplier = new InsertSupplier();
+                    $supplier->supplier = $req->supplier;
+                    $supplier->mode = $mode;
+                    $supplier->save();
+                    $supplierId = $supplier->Pk_supplierId;
+                } else {
+                    $resSupplier = DB::table('suppliers')->select('Pk_supplierId')->where('supplier', $req->supplier)->get();
+                    $supplierId = null;
+
+                    foreach ($resSupplier as $f) {
+                        $supplierId = $f->Pk_supplierId;
+                    }
+                }
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_supplierId' => $supplierId]);
+            }
+
+            //Update Acquisition Mode
+            if($req->acquiMode){
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['fundSource' => $req->acquiMode]);
+            }
+
+            //Udpate Unit
+            if ($req->unit != '') {
+                if ($unit < 1) {
+                    $unit = new InsertUnit();
+                    $unit->unit = $req->unit;
+                    $unit->save();
+                    $unitId = $unit->Pk_unitId;
+                } else {
+                    $resUnit = DB::table('units')->select('Pk_unitId')->where('unit', $req->unit)->get();
+                    $unitId = null;
+
+                    foreach ($resUnit as $c) {
+                        $unitId = $c->Pk_unitId;
+                    }
+                }
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_unitId' => $unitId]);
+            }
+
+            //Update Acquisition Date
+            if ($req->acquisition != '') {
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['acquisition_date' => $req->acquisition]);
+            }
+
+            //Update Warranty
+            if ($req->warranty != '') {
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['warranty' => $req->warranty]);
+            }
+
+            //Update Country
+            if ($req->countries != '') {
+                if ($country < 1) {
+                    $country = new InsertCountry();
+                    $country->country = $req->countries;
+                    $country->save();
+
+                    $countryId = $country->Pk_countryId;
+                } else {
+                    $resCountry = DB::table('countries')->select('Pk_countryId')->where('country', $req->countries)->get();
+                    $countryId = null;
+
+                    foreach ($resCountry as $b) {
+                        $countryId = $b->Pk_countryId;
+                    }
+                }
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_countryId' => $countryId]);
+            }
 
             //Update Manufacturer
             if ($req->manufacturer != '') {
