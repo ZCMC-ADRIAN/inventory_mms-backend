@@ -32,25 +32,25 @@ class EditItems extends Controller
             $supplier = DB::table('suppliers')->where('supplier', $req->supplier)->count();
 
             //Update Remarks
-            if($req->remarks){
+            if ($req->remarks) {
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['remarks' => $req->remarks]);
             }
 
             //Update Expiration
-            if($req->expiration){
+            if ($req->expiration) {
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['expiration' => $req->expiration]);
             }
 
             //Update Cost
-            if ($req->cost != ''){
+            if ($req->cost != '') {
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['cost' => $req->cost]);
             }
 
             //Update Supplier
             if ($req->supplier != '') {
-                if($req->acquiMode === 'Purchase'){
+                if ($req->acquiMode === 'Purchase') {
                     $mode = 0;
-                }else if($req->acquiMode === 'Donation'){
+                } else if ($req->acquiMode === 'Donation') {
                     $mode = 1;
                 }
                 if ($supplier < 1) {
@@ -71,7 +71,7 @@ class EditItems extends Controller
             }
 
             //Update Acquisition Mode
-            if($req->acquiMode){
+            if ($req->acquiMode !='') {
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['fundSource' => $req->acquiMode]);
             }
 
@@ -216,18 +216,6 @@ class EditItems extends Controller
                 }
             }
 
-            //Update Type
-            if ($req->otherType === 'Other') {
-                $types = new InsertTypes();
-                $types->type_name = $req->type;
-                $types->Fk_articleId = $articleId;
-                $types->save();
-
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $types->Pk_typeId]);
-            } else if ($curTypeId != $selTypeId) {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $selTypeId]);
-            }
-
             //Update category
             if ($req->category != '') {
                 if ($category > 0) {
@@ -239,6 +227,22 @@ class EditItems extends Controller
                     }
                 }
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_itemCategId' => $categId]);
+            }
+
+            return response()->json([
+                "status" => 1
+            ]);
+
+            //Update Type
+            if ($req->otherType === 'Other') {
+                $types = new InsertTypes();
+                $types->type_name = $req->type;
+                $types->Fk_articleId = $articleId;
+                $types->save();
+
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $types->Pk_typeId]);
+            } else if ($curTypeId != $selTypeId) {
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $selTypeId]);
             }
 
             return response()->json([
