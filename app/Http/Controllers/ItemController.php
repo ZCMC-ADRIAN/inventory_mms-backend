@@ -85,7 +85,8 @@ class ItemController extends Controller
             i.expiration as 'Expiration Date',
             i.fundSource as 'Fund Source',
             i.remarks as 'Remarks',
-            i.created_at as 'Created at'
+            i.created_at as 'Created at',
+            i.accessories as 'Accessories'
             FROM `items` i JOIN types t on i.Fk_typeId = t.Pk_typeId 
             LEFT JOIN status s ON i.Fk_statusId = s.Pk_statusId 
             LEFT JOIN manufacturers m ON i.Fk_manuId = m.Pk_manuId 
