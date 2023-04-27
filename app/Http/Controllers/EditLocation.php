@@ -19,7 +19,7 @@ class EditLocation extends Controller
         try {
             DB::beginTransaction();
             $data = request()->all();
-            $condition_id = $data['condition_id'];
+            $condition_id = isset($data['condition_id']) ? $data['condition_id'] : null;
             $location_id = isset($data['location_id']) ? $data['location_id'] : null;
             $assoc_id = isset($data['assoc_id']) ? $data['assoc_id'] : null;
             $newcondition_name = $data['newcondition_name'];
@@ -73,8 +73,8 @@ class EditLocation extends Controller
                     ]);
                     $condition_id = $cond->id;
                 } else {
-                    foreach ($currData as $data) {
-                        $condId = $data->Fk_conditionsId;
+                    foreach ($currData as $datas) {
+                        $condId = $datas->Fk_conditionsId;
                     }
                     $condition_id = $condId;
                 }
