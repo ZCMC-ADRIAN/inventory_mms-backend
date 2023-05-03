@@ -71,7 +71,7 @@ class EditItems extends Controller
             }
 
             //Update Acquisition Mode
-            if ($req->acquiMode !='') {
+            if ($req->acquiMode != '') {
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['fundSource' => $req->acquiMode]);
             }
 
@@ -159,7 +159,7 @@ class EditItems extends Controller
             }
 
             //Update Accessories
-            if($req->accessories != '') {
+            if ($req->accessories != '') {
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['accessories' => $req->accessories]);
             }
 
@@ -190,10 +190,6 @@ class EditItems extends Controller
             //Update Model
             if ($req->model != '') {
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['model' => $req->model]);
-
-                // return response()->json([
-                //     "status" => 1
-                // ]);
             }
 
             foreach ($resType as $i) {
@@ -221,6 +217,18 @@ class EditItems extends Controller
                 }
             }
 
+            //Update Type
+            if ($req->otherType === 'Other') {
+                $types = new InsertTypes();
+                $types->type_name = $req->type;
+                $types->Fk_articleId = $articleId;
+                $types->save();
+
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $types->Pk_typeId]);
+            } else if ($curTypeId != $selTypeId) {
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $selTypeId]);
+            }
+
             //Update category
             if ($req->category != '') {
                 if ($category > 0) {
@@ -238,21 +246,6 @@ class EditItems extends Controller
                 "status" => 1
             ]);
 
-            //Update Type
-            if ($req->otherType === 'Other') {
-                $types = new InsertTypes();
-                $types->type_name = $req->type;
-                $types->Fk_articleId = $articleId;
-                $types->save();
-
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $types->Pk_typeId]);
-            } else if ($curTypeId != $selTypeId) {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $selTypeId]);
-            }
-
-            return response()->json([
-                "status" => 1
-            ]);
         } catch (\Throwable $th) {
             return response()->json([
                 "message" => $th
