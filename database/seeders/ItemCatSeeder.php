@@ -20,22 +20,26 @@ class itemCatSeeder extends Seeder
         //
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 1,
-            "itemCateg_name" => "Equipment"
+            "itemCateg_name" => "Medical Equipment"
         ]);
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 2,
-            "itemCateg_name" => "Janitorial"
+            "itemCateg_name" => "Janitorial Equipment"
         ]);
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 3,
-            "itemCateg_name" => "Office"
+            "itemCateg_name" => "Office Equipment"
         ]);
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 4,
-            "itemCateg_name" => "Furniture"
+            "itemCateg_name" => "IT"
         ]);
         DB::table('itemCateg')->insert([
             "Pk_itemCategId" => 5,
+            "itemCateg_name" => "Furniture"
+        ]);
+        DB::table('itemCateg')->insert([
+            "Pk_itemCategId" => 6,
             "itemCateg_name" => "Other"
         ]);
     }

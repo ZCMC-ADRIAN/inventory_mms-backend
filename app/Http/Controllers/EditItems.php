@@ -158,6 +158,11 @@ class EditItems extends Controller
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_brandId' => $brandId]);
             }
 
+            //Update Other
+            if ($req->other != '') {
+                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['other' => $req->other]);
+            }
+
             //Update Accessories
             if ($req->accessories != '') {
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['accessories' => $req->accessories]);

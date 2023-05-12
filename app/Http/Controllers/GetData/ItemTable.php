@@ -10,18 +10,15 @@ class ItemTable extends Controller
 {
     public function locations(Request $request)
     {
-        //SELECT Pk_locationId, location_name FROM `location` WHERE 1;
         try {
             if ($request->has('q')) {
                 # search item
                 $q = $request->input('q');
-                $location = DB::select("SELECT Pk_locationId, location_name FROM `location` WHERE location_name LIKE ?", ["%$q%"]);
+                $location = DB::select("SELECT DISTINCT property_no FROM inventories WHERE property_no LIKE ? UNION SELECT DISTINCT `serial` FROM inventories WHERE `serial` LIKE ?", ["%$q%", "%$q%"]);
                 return response()->json($location);
             } else {
                 # code...
-                $location = DB::table('location')->select(
-                    ["Pk_locationId", "location_name"]
-                )->get();
+                $location = DB::select("SELECT DISTINCT property_no FROM inventories WHERE property_no IS NOT NULL UNION SELECT DISTINCT `serial` FROM inventories WHERE `serial` IS NOT NULL");
                 return response()->json($location);
             }
         } catch (\Throwable $th) {

@@ -26,6 +26,7 @@ return new class extends Migration
             $table->unsignedInteger('Fk_countryId')->nullable();
             $table->unsignedInteger('Fk_sourcemodeId')->nullable();
             $table->unsignedInteger('Fk_itemCategId')->nullable();
+            $table->unsignedInteger('Fk_userId')->nullable();
 
             $table->foreign('Fk_typeId')->references('Pk_typeId')->on('types');
             $table->foreign('Fk_statusId')->references('Pk_statusId')->on('status');
@@ -37,10 +38,12 @@ return new class extends Migration
             $table->foreign('Fk_countryId')->references('Pk_countryId')->on('countries');
             $table->foreign('Fk_sourcemodeId')->references('Pk_sourceId')->on('acquisource');
             $table->foreign('Fk_itemCategId')->references('Pk_itemCategId')->on('itemCateg');
+            $table->foreign('Fk_userId')->references('userId')->on('users');
 
             $table->string('item_name')->nullable();
             $table->string('model')->nullable();
             $table->string('details2',1000)->nullable();
+            $table->string('accessories',3000)->nullable();
             $table->string('other')->nullable();
             // $table->string('serial')->nullable();
             $table->date('warranty')->nullable();
@@ -50,6 +53,8 @@ return new class extends Migration
             $table->string('fundSource')->nullable();
             $table->double('cost', 10, 2)->default(0.00);
             $table->string('remarks')->nullable();
+            $table->string('barcode')->nullable();
+            $table->integer('status')->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }

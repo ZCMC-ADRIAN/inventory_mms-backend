@@ -40,6 +40,7 @@ class CreateItem extends Controller
             $manuId = null;
             $articleId = null;
             $categId = null;
+            $userId = $req->userId;
             $mode = null;
 
             $isIN = $req->isIN;
@@ -175,7 +176,6 @@ class CreateItem extends Controller
                     }
                 }
             }
-
             
 
             //check if the item about to insert is existing.
@@ -269,6 +269,7 @@ class CreateItem extends Controller
                 $item->Fk_brandId = $brandId;
                 $item->Fk_countryId = $countryId;
                 $item->Fk_itemCategId = $categId;
+                $item->Fk_userId = $userId;
                 $item->item_name = $req->descOrig;
                 $item->model = $req->model;
                 $item->details2 = $req->details;

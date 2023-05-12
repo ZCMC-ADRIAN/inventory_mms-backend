@@ -32,6 +32,7 @@ class ItemSeeder extends Seeder
             'item_name' => "table",
             'model' => "model is unique",
             'details2' => "details ",
+            'accessories' => "accessories",
             'other' => "other details",
             'warranty' => Carbon::now(),
             'acquisition_date' => Carbon::now(),
