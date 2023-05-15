@@ -269,7 +269,6 @@ class CreateItem extends Controller
                 $item->Fk_brandId = $brandId;
                 $item->Fk_countryId = $countryId;
                 $item->Fk_itemCategId = $categId;
-                $item->Fk_userId = $userId;
                 $item->item_name = $req->descOrig;
                 $item->model = $req->model;
                 $item->details2 = $req->details;

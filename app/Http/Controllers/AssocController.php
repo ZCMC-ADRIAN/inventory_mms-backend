@@ -58,7 +58,7 @@ class AssocController extends Controller
     {
         //
         try {
-            $location = DB::select("SELECT * FROM locat_man LEFT JOIN associate on Fk_assocId = associate.Pk_assocId WHERE Fk_locationId = ?;", [$id]);
+            $location = DB::select("SELECT DISTINCT person_name FROM locat_man LEFT JOIN associate on Fk_assocId = associate.Pk_assocId WHERE Fk_locationId = ?;", [$id]);
             return response()->json($location);
         } catch (\Throwable $th) {
             return $th;
