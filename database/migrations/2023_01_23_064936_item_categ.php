@@ -18,6 +18,7 @@ return new class extends Migration
          Schema::create('itemCateg', function (Blueprint $table) {
             $table->increments('Pk_itemCategId');
             $table->string('itemCateg_name');
+            $table->string("code")->nullable();;
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
         });
     }

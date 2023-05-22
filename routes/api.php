@@ -14,10 +14,10 @@ Route::post('/signin', [SignUp::class, 'Login']);
 Route::get('/test', [test::class, 'test']);
 ///Helper 
 Route::namespace('App\Http\Controllers')->group(function () {
- Route::post('/help/upload', 'Helper\MessedUpController@messup');
- Route::post('/help/uploadinv', 'Helper\InventoryExtract@invExtract');
+    Route::post('/help/upload', 'Helper\MessedUpController@messup');
+    Route::post('/help/uploadinv', 'Helper\InventoryExtract@invExtract');
 });
-       
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::namespace('App\Http\Controllers')->group(function () {
         Route::post('/logout', 'SignUp@logout');
@@ -57,7 +57,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //Countries
         Route::Get('/country', 'CountriesController@index');
 
-        
+
         Route::get('/item-list', 'GetData\ItemTable@items');
 
         //Table Item List per Item Desc
@@ -82,5 +82,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         //Printing Property Tag
         Route::get('/tags', 'GetData\PropertyTag@property_tag');
+
+        //No Property Tag
+        Route::get('/no-property', 'GetData\PropertyTag@no_property');
     });
 });

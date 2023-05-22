@@ -14,11 +14,12 @@ class ItemTable extends Controller
             if ($request->has('q')) {
                 # search item
                 $q = $request->input('q');
-                $location = DB::select("SELECT DISTINCT property_no FROM inventories WHERE property_no LIKE ? UNION SELECT DISTINCT `serial` FROM inventories WHERE `serial` LIKE ?", ["%$q%", "%$q%"]);
+                $location = DB::select("SELECT DISTINCT property_no FROM inventories WHERE property_no LIKE ? UNION SELECT DISTINCT `serial` FROM inventories WHERE `serial` LIKE ? UNION SELECT DISTINCT location_name FROM inventories LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId WHERE location_name LIKE ?", ["%$q%", "%$q%", "%$q%"]);
+                
                 return response()->json($location);
             } else {
                 # code...
-                $location = DB::select("SELECT DISTINCT property_no FROM inventories WHERE property_no IS NOT NULL UNION SELECT DISTINCT `serial` FROM inventories WHERE `serial` IS NOT NULL");
+                $location = DB::select("SELECT DISTINCT property_no FROM inventories WHERE property_no IS NOT NULL UNION SELECT DISTINCT `serial` FROM inventories WHERE `serial` IS NOT NULL UNION SELECT DISTINCT location_name FROM inventories LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId");
                 return response()->json($location);
             }
         } catch (\Throwable $th) {

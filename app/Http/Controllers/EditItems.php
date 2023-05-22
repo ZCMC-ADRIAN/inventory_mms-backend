@@ -223,15 +223,17 @@ class EditItems extends Controller
             }
 
             //Update Type
-            if ($req->otherType === 'Other') {
-                $types = new InsertTypes();
-                $types->type_name = $req->type;
-                $types->Fk_articleId = $articleId;
-                $types->save();
+            if ($req->type != '') {
+                if ($req->otherType === 'Other') {
+                    $types = new InsertTypes();
+                    $types->type_name = $req->type;
+                    $types->Fk_articleId = $articleId;
+                    $types->save();
 
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $types->Pk_typeId]);
-            } else if ($curTypeId != $selTypeId) {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $selTypeId]);
+                    DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $types->Pk_typeId]);
+                } else if ($curTypeId != $selTypeId) {
+                    DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $selTypeId]);
+                }
             }
 
             //Update category
@@ -250,7 +252,6 @@ class EditItems extends Controller
             return response()->json([
                 "status" => 1
             ]);
-
         } catch (\Throwable $th) {
             return response()->json([
                 "message" => $th
