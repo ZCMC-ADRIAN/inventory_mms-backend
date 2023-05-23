@@ -15,13 +15,11 @@ class Inventory extends Model
         'Fk_itemId',
         'Fk_conditionsId',
         'Fk_locatmanId',
-        // 'IAR_num',
-        // 'IAR_date',
+        'Fk_propertyId',
         'Delivery_date',
         'Quantity',
         'property_no',
         'serial',
-        'loose',
         'Remarks'
     ];
 

@@ -14,6 +14,7 @@ use App\Models\InsertCountry;
 use App\Models\InsertUnit;
 use App\Models\InsertTypes;
 use App\Models\InsertItem;
+use App\Models\InsertPropertyNo;
 
 class CreateItem extends Controller
 {
@@ -213,27 +214,6 @@ class CreateItem extends Controller
             ->where('cost',$req->cost)
             ->exists();
 
-            // $item = new InsertItem();
-            // $item->Fk_typeId = $types->Pk_typeId;
-            // $item->Fk_statusId = $statusId;
-            // $item->Fk_manuId = $manuId;
-            // $item->Fk_supplierId = $supplierId;
-            // $item->Fk_unitId = $unitId;
-            // $item->Fk_varietyId = $varietyId;
-            // $item->Fk_brandId = $brandId;
-            // $item->Fk_countryId = $countryId;
-            // $item->Fk_itemCategId = $categId;
-            // $item->item_name = $req->descOrig;
-            // $item->model = $req->model;
-            // $item->details2 = $req->details;
-            // $item->other = $req->other;
-            // $item->warranty = $req->warranty;
-            // $item->acquisition_date = $req->acquisition;
-            // $item->expiration = $req->expiration;
-            // $item->cost = $req->cost;
-            // $item->fundSource = $req->acquisitionMode;
-            // $item->save();
-
             if($itemCheck&&$canContinue){
                 //echo 'existingg and return the existed id of item';
                 $itemCheck = DB::table('items')
@@ -279,6 +259,7 @@ class CreateItem extends Controller
                 $item->expiration = $req->expiration;
                 $item->cost = $req->cost;
                 $item->fundSource = $req->acquisitionMode;
+                $item->barcode = $req->barcode;
                 $item->save();
                 $itemId = $item->Pk_itemId;
                 
