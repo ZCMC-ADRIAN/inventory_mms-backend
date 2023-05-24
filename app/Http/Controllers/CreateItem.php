@@ -14,7 +14,9 @@ use App\Models\InsertCountry;
 use App\Models\InsertUnit;
 use App\Models\InsertTypes;
 use App\Models\InsertItem;
+use App\Models\InsertPARSeries;
 use App\Models\InsertPropertyNo;
+use App\Models\InsertICSSeries;
 
 class CreateItem extends Controller
 {
@@ -31,7 +33,9 @@ class CreateItem extends Controller
             $supplier = DB::table('suppliers')->where('supplier', $req->supplier)->count();
             $manu = DB::table('manufacturers')->where('manu_name', $req->manufacturer)->count();
             $category = DB::table('itemcateg')->select('*')->where('itemCateg_name', $req->category)->get();
-            
+            $parSeries = DB::table('par_series')->select('series')->get();
+            $icsSeries = DB::table('ics_series')->select('series')->get();
+
             $brandId = null;
             $countryId = null;
             $unitId = null;
@@ -43,10 +47,12 @@ class CreateItem extends Controller
             $categId = null;
             $userId = $req->userId;
             $mode = null;
+            $seriesPAR = null;
+            $seriesICS = null;
 
             $isIN = $req->isIN;
             $isNew = false;
-            foreach ($category as $a){
+            foreach ($category as $a) {
                 $categId = $a->Pk_itemCategId;
             }
 
@@ -128,9 +134,9 @@ class CreateItem extends Controller
             }
 
             if ($req->supplier != '') {
-                if($req->acquisitionMode === 'Purchase'){
+                if ($req->acquisitionMode === 'Purchase') {
                     $mode = 0;
-                }else if($req->acquisitionMode === 'Donation'){
+                } else if ($req->acquisitionMode === 'Donation') {
                     $mode = 1;
                 }
                 if ($supplier < 1) {
@@ -169,7 +175,7 @@ class CreateItem extends Controller
                     $article->article_name = $req->article;
                     $article->save();
                     $articleId = $article->Pk_articleId;
-                }else{
+                } else {
                     $resArticle = DB::table('articles')->select('Pk_articleId')->where('article_name', $req->article)->get();
 
                     foreach ($resArticle as $h) {
@@ -177,46 +183,54 @@ class CreateItem extends Controller
                     }
                 }
             }
-            
+
+            //Insert PAR Series
+            if ($req->barcode != null && $req->property_no === null) {
+                if ($req->cost >= 50000) {
+                    foreach ($parSeries as $par) {
+                        $seriesPAR = $par->series;
+                    }
+                    $PAR = new InsertPARSeries();
+                    $PAR->series = $seriesPAR + 1;
+                    $PAR->save();
+
+                    $property = new InsertPropertyNo();
+                    $property->Fk_parId = $PAR->Pk_parId;
+                    $property->type = 1;
+                    $property->save();
+
+                }else if($req->cost < 50000){
+                    foreach ($icsSeries as $ics){
+                        $seriesICS = $ics->series;
+                    }
+                    $ICS = new InsertICSSeries();
+                    $ICS->series = $seriesICS + 1;
+                    $ICS->save();
+
+                    $property = new InsertPropertyNo();
+                    $property->Fk_icsId = $ICS->Pk_icsId;
+                    $property->type = 0;
+                    $property->save();
+                }
+            }
 
             //check if the item about to insert is existing.
             // all the query if empty make it null
 
-           $itemId = null;
+            $itemId = null;
 
             $canContinue = DB::table('types')
-            ->where('type_name', $req->type)
-            ->where('Fk_articleId', $articleId)
-            ->exists();
+                ->where('type_name', $req->type)
+                ->where('Fk_articleId', $articleId)
+                ->exists();
             //echo $canContinue.$req->type.$articleId;
-            
+
             $types = new InsertTypes();
             $types->type_name = $req->type;
             $types->Fk_articleId = $articleId;
             $types->save();
 
             $itemCheck = DB::table('items')
-            //->where('Fk_typeId', $types->Pk_typeId)
-            ->where('Fk_statusId', $statusId)
-            ->where('Fk_manuId', $manuId)
-            ->where('Fk_supplierId', $supplierId)
-            ->where('Fk_unitId', $unitId)
-            ->where('Fk_varietyId', $varietyId)
-            ->where('Fk_brandId', $brandId)
-            ->where('Fk_countryId', $countryId)
-            ->where('Fk_itemCategId', $categId)
-            ->where('model', $req->model)
-            ->where('details2', $req->details)
-            ->where('other', $req->other)
-            ->where('warranty', $req->warranty)
-            ->where('acquisition_date', $req->acquisition)
-            ->where('expiration', $req->expiration)
-            ->where('cost',$req->cost)
-            ->exists();
-
-            if($itemCheck&&$canContinue){
-                //echo 'existingg and return the existed id of item';
-                $itemCheck = DB::table('items')
                 //->where('Fk_typeId', $types->Pk_typeId)
                 ->where('Fk_statusId', $statusId)
                 ->where('Fk_manuId', $manuId)
@@ -232,11 +246,32 @@ class CreateItem extends Controller
                 ->where('warranty', $req->warranty)
                 ->where('acquisition_date', $req->acquisition)
                 ->where('expiration', $req->expiration)
-                ->where('cost',$req->cost)
-                ->first();
+                ->where('cost', $req->cost)
+                ->exists();
+
+            if ($itemCheck && $canContinue) {
+                //echo 'existingg and return the existed id of item';
+                $itemCheck = DB::table('items')
+                    //->where('Fk_typeId', $types->Pk_typeId)
+                    ->where('Fk_statusId', $statusId)
+                    ->where('Fk_manuId', $manuId)
+                    ->where('Fk_supplierId', $supplierId)
+                    ->where('Fk_unitId', $unitId)
+                    ->where('Fk_varietyId', $varietyId)
+                    ->where('Fk_brandId', $brandId)
+                    ->where('Fk_countryId', $countryId)
+                    ->where('Fk_itemCategId', $categId)
+                    ->where('model', $req->model)
+                    ->where('details2', $req->details)
+                    ->where('other', $req->other)
+                    ->where('warranty', $req->warranty)
+                    ->where('acquisition_date', $req->acquisition)
+                    ->where('expiration', $req->expiration)
+                    ->where('cost', $req->cost)
+                    ->first();
 
                 $itemId = get_object_vars($itemCheck)['Pk_itemId'];
-            }else{
+            } else {
                 //echo 'not existed new saved';
                 $isNew = true;
                 $item = new InsertItem();
@@ -262,23 +297,20 @@ class CreateItem extends Controller
                 $item->barcode = $req->barcode;
                 $item->save();
                 $itemId = $item->Pk_itemId;
-                
             }
 
             DB::commit();
             return response()->json([
                 //return ID of newly created ITEM or the existed
-                'new item'=>$itemId,
+                'new item' => $itemId,
                 'status' => 1,
                 'isIN' => $isIN,
-                'isnew'=> $isNew
+                'isnew' => $isNew
             ]);
-            
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
-                'message' => $th,
-                'error' => "please check your ITEM details"
+                'message' => $th->getMessage()
             ]);
         }
     }

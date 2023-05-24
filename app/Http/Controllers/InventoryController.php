@@ -10,6 +10,7 @@ use App\Models\Locatman;
 use App\Models\InsertItem;
 use App\Models\InsertCountry;
 use App\Models\InsertVariety;
+use App\Models\InsertPropertyNo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -66,6 +67,15 @@ class InventoryController extends Controller
             $delivery_date = $data['delivery_date'];
             $quantity = $data['quantity'];
             $remarks = $data['remarks'];
+            $Pk_propertyId = null;
+
+            if (!$prop_no) {
+                $propertyNo = DB::table('propertyno')->select('Pk_propertyId')->orderBy('created_at', 'desc')->first();
+
+                if ($propertyNo) {
+                    $Pk_propertyId = $propertyNo->Pk_propertyId;
+                }
+            }
 
             $isnew = false;
             if (!$condition_id) {
@@ -111,23 +121,23 @@ class InventoryController extends Controller
                 'Fk_itemId' => $itemId,
                 'Fk_conditionsId' => $condition_id,
                 'Fk_locatmanId' => $locatman,
+                'Fk_propertyId' => $Pk_propertyId,
                 'Delivery_date' => $delivery_date,
                 'Quantity' => $quantity,
                 'property_no' => $prop_no,
                 'serial' => $serial,
                 'Remarks' => $remarks,
             ]);
-           DB::commit();
+            DB::commit();
             return response()->json([
                 'message' => 'Inventory created successfully',
                 'data' => $inventory
             ], 201);
-             
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
                 'status' => 500,
-                'message' => $th
+                'message' => $th->getMessage()
             ]);
         }
     }
