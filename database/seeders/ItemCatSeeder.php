@@ -18,7 +18,7 @@ class itemCatSeeder extends Seeder
     public function run()
     {
         DB::table('itemCateg')->insert([
-            "Pk_itemCategId" => 7,
+            "Pk_itemCategId" => 6,
             "itemCateg_name" => "Machinery",
             "code" => "05-01"
         ]);
@@ -28,7 +28,7 @@ class itemCatSeeder extends Seeder
             "code" => "05-02"
         ]);
         DB::table('itemCateg')->insert([
-            "Pk_itemCategId" => 4,
+            "Pk_itemCategId" => 7,
             "itemCateg_name" => "Information and Communication Technology Equipment",
             "code" => "05-03"
         ]);
@@ -93,7 +93,7 @@ class itemCatSeeder extends Seeder
             "code" => "06-03"
         ]);
         DB::table('itemCateg')->insert([
-            "Pk_itemCategId" => 5,
+            "Pk_itemCategId" => 4,
             "itemCateg_name" => "Furnitures and Fixtures",
             "code" => "06-01"
         ]);
@@ -103,7 +103,7 @@ class itemCatSeeder extends Seeder
             "code" => "06-02"
         ]);
         DB::table('itemCateg')->insert([
-            "Pk_itemCategId" => 6,
+            "Pk_itemCategId" => 5,
             "itemCateg_name" => "Other",
             "code" => "09-09"
         ]);
