@@ -19,12 +19,12 @@ class LocationController extends Controller
             if ($request->has('q')) {
                 # search item
                 $q = $request->input('q');
-                $location = DB::select("SELECT Pk_locationId, location_name FROM `location` WHERE location_name LIKE ?", ["%$q%"]);
+                $location = DB::select("SELECT Pk_locationId, location_name, area_code FROM `location` WHERE location_name LIKE ?", ["%$q%"]);
                 return response()->json($location);
             } else {
                 # code...
                 $location = DB::table('location')->select(
-                    ["Pk_locationId", "location_name"]
+                    ["Pk_locationId", "location_name", "area_code"]
                 )->get();
                 return response()->json($location);
             }

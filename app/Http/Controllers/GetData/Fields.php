@@ -87,4 +87,50 @@ class Fields extends Controller
             ]);
         }
     }
+
+    public function getSeries(Request $req){
+        try {
+            $cost = $req->cost;
+            
+            if ($cost >= 50000) {
+                $getSeries = DB::table('par_series')->select('series')->orderBy('created_at', 'desc')->first();
+            
+                if ($getSeries !== null) {
+                    $series = $getSeries->series + 1;
+                } else {
+                    $series = 1;
+                }
+            } elseif ($cost < 50000) {
+                $getSeries = DB::table('ics_series')->select('series')->orderBy('created_at', 'desc')->first();
+            
+                if ($getSeries !== null) {
+                    $series = $getSeries->series + 1;
+                } else {
+                    $series = 1;
+                }
+            }
+
+            return response()->json($series);
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
+            ]);
+        }
+    }
+
+    public function getCode(Request $req){
+        try {
+            $category = $req->categ;
+
+            $categCode = DB::table('itemcateg')->select('code')->where('itemCateg_name', $category)->get();
+
+            return response()->json($categCode);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
+            ]);
+        }
+    }
 }
