@@ -14,18 +14,19 @@ class LocationController extends Controller
      */
     public function index(Request $request)
     {
-        //SELECT Pk_locationId, location_name FROM `location` WHERE 1;
+
         try {
             if ($request->has('q')) {
                 # search item
                 $q = $request->input('q');
-                $location = DB::select("SELECT Pk_locationId, location_name, area_code FROM `location` WHERE location_name LIKE ?", ["%$q%"]);
+                $location = DB::select("SELECT Pk_locationId, location_name FROM `location` WHERE location_name LIKE ?", ["%$q%"]);
                 return response()->json($location);
             } else {
                 # code...
                 $location = DB::table('location')->select(
-                    ["Pk_locationId", "location_name", "area_code"]
+                    ["Pk_locationId", "location_name"]
                 )->get();
+
                 return response()->json($location);
             }
         } catch (\Throwable $th) {
@@ -64,9 +65,20 @@ class LocationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $req)
     {
-        //
+        try {
+            $location = $req->locValue;
+
+            $location_name = DB::select('SELECT area_code FROM location WHERE location_name = ?', ["$location"]);
+
+            return response()->json($location_name);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
+            ]);
+        }
     }
 
     /**

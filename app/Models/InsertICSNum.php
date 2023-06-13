@@ -5,16 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-//Fk_locationId
-
-
-
-class Associate extends Model
+class InsertICSNum extends Model
 {
     use HasFactory;
-    protected $table = 'associate';
+    protected $table = 'ics_no';
+    protected $primaryKey = 'Pk_icsNumId';
+    protected $fillable = ['series'];
     public $timestamps = false;
-    protected $fillable = [
-        'person_name', 'ics_number'
-    ];
 }

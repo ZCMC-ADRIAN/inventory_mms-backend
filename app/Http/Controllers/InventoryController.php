@@ -10,6 +10,7 @@ use App\Models\Locatman;
 use App\Models\InsertItem;
 use App\Models\InsertCountry;
 use App\Models\InsertVariety;
+use App\Models\InsertICSNum;
 use App\Models\InsertPropertyNo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -64,26 +65,12 @@ class InventoryController extends Controller
             $newAssoc_name = $data['newAssoc_name'];
             $prop_no = $data['property_no'];
             $serial = $data['serial'];
+            $barcode = $data['barcode'];
             $delivery_date = $data['delivery_date'];
             $quantity = $data['quantity'];
             $remarks = $data['remarks'];
             $newProp = $data['newProperty'];
             $Pk_propertyId = null;
-
-            // //To be Continue
-            // $items = DB::select('SELECT Fk_propertyId, Pk_inventoryId, `serial`, barcode, location_name, person_name, code, series, area_code FROM inventories LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId LEFT JOIN types ON items.Fk_typeId = types.Pk_typeId LEFT JOIN articles ON types.Fk_articleId = articles.Pk_articleId LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId LEFT JOIN associate ON locat_man.Fk_assocId = associate.Pk_assocId LEFT JOIN itemcateg ON itemcateg.Pk_itemCategId = items.Fk_itemCategId LEFT JOIN propertyno ON propertyno.Pk_propertyId = inventories.Fk_propertyId LEFT JOIN par_series ON propertyno.Fk_parId = par_series.Pk_parId WHERE Pk_itemId = ?', ["$itemId"]);
-            
-            // foreach($items as $info){
-            //     $propertId = $info->Fk_propertyId;
-            //     $inventoryId = $info->Pk_inventoryId;
-                
-            //     $year = '2023';
-            //     $categ_code = $info->code;
-            //     $series = $info->series;
-            //     $area_code = $info->area_code;
-            // }
-
-            // $propertyNum = $year.'-'.$categ_code.'-'.$series.'-'.$area_code;
             
             if (!$prop_no) {
                 $propertyNo = DB::table('propertyno')->select('Pk_propertyId')->orderBy('created_at', 'desc')->first();
@@ -140,8 +127,10 @@ class InventoryController extends Controller
                 'Fk_propertyId' => $Pk_propertyId,
                 'Delivery_date' => $delivery_date,
                 'Quantity' => $quantity,
-                'property_no' => $newProp,
+                'property_no' => $prop_no,
+                'newProperty' => $newProp,
                 'serial' => $serial,
+                'barcode' => $barcode,
                 'Remarks' => $remarks,
             ]);
 

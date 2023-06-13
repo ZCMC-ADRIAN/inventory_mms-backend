@@ -185,7 +185,7 @@ class CreateItem extends Controller
             }
 
             //Insert PAR Series
-            if ($req->barcode != null && $req->property_no === null) {
+            if ($req->barcode != null || $req->property_no === null) {
                 if ($req->cost >= 50000) {
                     foreach ($parSeries as $par) {
                         $seriesPAR = $par->series;
@@ -294,7 +294,6 @@ class CreateItem extends Controller
                 $item->expiration = $req->expiration;
                 $item->cost = $req->cost;
                 $item->fundSource = $req->acquisitionMode;
-                $item->barcode = $req->barcode;
                 $item->save();
                 $itemId = $item->Pk_itemId;
             }

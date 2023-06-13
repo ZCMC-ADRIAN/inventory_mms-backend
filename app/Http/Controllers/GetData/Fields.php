@@ -96,22 +96,61 @@ class Fields extends Controller
                 $getSeries = DB::table('par_series')->select('series')->orderBy('created_at', 'desc')->first();
             
                 if ($getSeries !== null) {
-                    $series = $getSeries->series + 1;
+                    $lastNumber = $getSeries->series;
+                    $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
                 } else {
-                    $series = 1;
+                    $nextNumber = '0001';
                 }
+                
             } elseif ($cost < 50000) {
                 $getSeries = DB::table('ics_series')->select('series')->orderBy('created_at', 'desc')->first();
             
                 if ($getSeries !== null) {
-                    $series = $getSeries->series + 1;
+                    $lastNumber = $getSeries->series;
+                    $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
                 } else {
-                    $series = 1;
+                    $nextNumber = '0001';
                 }
             }
-
-            return response()->json($series);
             
+            return response()->json($nextNumber);
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
+            ]);
+        }
+    }
+
+    public function getICSNumSeries(){
+        try {
+            //get Series for ICS Number
+            $getSeries = DB::table('ics_no')->select('series')->orderBy('created_at', 'desc')->first();
+
+            if ($getSeries !== null) {
+                $lastNumber = $getSeries->series;
+                $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+            } else {
+                $nextNumber = '0001';
+            }
+
+            return response()->json($nextNumber);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
+            ]);
+        }
+    }
+
+    public function getCost(Request $req){
+        try {
+            $itemId = $req->itemId;
+
+            $cost = DB::table('items')->select('cost')->where('Pk_itemId', $itemId)->get();
+
+            return response()->json($cost);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th -> getMessage()
@@ -126,6 +165,21 @@ class Fields extends Controller
             $categCode = DB::table('itemcateg')->select('code')->where('itemCateg_name', $category)->get();
 
             return response()->json($categCode);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
+            ]);
+        }
+    }
+
+    public function getPrev(Request $req){
+        try {
+            $itemId = $req->itemId;
+
+            $prev = DB::select('SELECT DISTINCT IF(par_series.series IS NOT NULL, par_series.series, ics_series.series) AS series, code FROM inventories LEFT JOIN items ON items.Pk_itemId = inventories.Fk_itemId LEFT JOIN itemcateg ON itemcateg.Pk_itemCategId = items.Fk_itemCategId LEFT JOIN propertyno ON inventories.Fk_propertyId = propertyno.Pk_propertyId LEFT JOIN par_series ON propertyno.Fk_parId = par_series.Pk_parId LEFT JOIN ics_series ON propertyno.Fk_icsId = ics_series.Pk_icsId WHERE Pk_itemId = ?', ["$itemId"]);
+
+            return response()->json($prev);
 
         } catch (\Throwable $th) {
             return response()->json([

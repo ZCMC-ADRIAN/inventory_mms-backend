@@ -19,7 +19,9 @@ class Inventory extends Model
         'Delivery_date',
         'Quantity',
         'property_no',
+        'newProperty',
         'serial',
+        'barcode',
         'Remarks'
     ];
 
