@@ -72,12 +72,10 @@ class InventoryController extends Controller
             $newProp = $data['newProperty'];
             $Pk_propertyId = null;
             
-            if (!$prop_no) {
-                $propertyNo = DB::table('propertyno')->select('Pk_propertyId')->orderBy('created_at', 'desc')->first();
+            $propertyNo = DB::table('propertyno')->select('Pk_propertyId')->orderBy('created_at', 'desc')->first();
 
-                if ($propertyNo) {
-                    $Pk_propertyId = $propertyNo->Pk_propertyId;
-                }
+            if ($propertyNo) {
+                $Pk_propertyId = $propertyNo->Pk_propertyId;
             }
 
             $isnew = false;
