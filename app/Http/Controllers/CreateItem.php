@@ -17,6 +17,8 @@ use App\Models\InsertItem;
 use App\Models\InsertPARSeries;
 use App\Models\InsertPropertyNo;
 use App\Models\InsertICSSeries;
+use App\Models\InsertICSDetails;
+use App\Models\InsertPARDetails;
 
 class CreateItem extends Controller
 {
@@ -45,6 +47,8 @@ class CreateItem extends Controller
             $manuId = null;
             $articleId = null;
             $categId = null;
+            $icsDetailsId = null;
+            $parDetailsId = null;
             $userId = $req->userId;
             $mode = null;
             $seriesPAR = null;
@@ -230,6 +234,42 @@ class CreateItem extends Controller
             $types->Fk_articleId = $articleId;
             $types->save();
 
+            if($req->po != ''){
+                $ics_details = new InsertICSDetails();
+                $ics_details->po_number = $req->po;
+                $ics_details->po_date = $req->po_date;
+                $ics_details->invoice = $req->invoice;
+                $ics_details->invoiceDate = $req->invoice_date;
+                $ics_details->ors = $req->ors;
+                $ics_details->icsRemarks = $req->ics_remarks;
+                $ics_details->save();
+    
+                $ics_detailsId = DB::table('ics_details')->select('Pk_icsDetails')->get();
+    
+                foreach($ics_detailsId as $resICS){
+                    $icsId = $resICS->Pk_icsDetails;
+                }
+            }else{
+                $icsId = null;
+            }
+
+            if($req->drf != ''){
+                $par_details = new InsertPARDetails();
+                $par_details->drf = $req->drf;
+                $par_details->drf_date = $req->drf_date;
+                $par_details->iar = $req->iar;
+                $par_details->parRemarks = $req->par_remarks;
+                $par_details->save();
+    
+                $par_detailsId = DB::table('par_details')->select('Pk_parDetails')->get();
+    
+                foreach($par_detailsId as $resPAR){
+                    $parId = $resPAR->Pk_parDetails;
+                }
+            }else{
+                $parId = null;
+            }
+
             $itemCheck = DB::table('items')
                 //->where('Fk_typeId', $types->Pk_typeId)
                 ->where('Fk_statusId', $statusId)
@@ -284,6 +324,8 @@ class CreateItem extends Controller
                 $item->Fk_brandId = $brandId;
                 $item->Fk_countryId = $countryId;
                 $item->Fk_itemCategId = $categId;
+                $item->Fk_icsDetailsId = $icsId;
+                $item->Fk_parDetailsId = $parId;
                 $item->item_name = $req->descOrig;
                 $item->model = $req->model;
                 $item->details2 = $req->details;

@@ -12,6 +12,8 @@ use App\Models\InsertCountry;
 use App\Models\InsertVariety;
 use App\Models\InsertICSNum;
 use App\Models\InsertPropertyNo;
+use App\Models\InsertICSSeries;
+use App\Models\InsertPARSeries;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -72,12 +74,44 @@ class InventoryController extends Controller
             $newProp = $data['newProperty'];
             $Pk_propertyId = null;
             
+            $parSeries = DB::table('par_series')->select('series')->get();
+            $icsSeries = DB::table('ics_series')->select('series')->get();
+
+            if ($request->inv === true) {
+                if ($request->itemCost >= 50000) {
+                    foreach ($parSeries as $par) {
+                        $seriesPAR = $par->series;
+                    }
+                    $PAR = new InsertPARSeries();
+                    $PAR->series = $seriesPAR + 1;
+                    $PAR->save();
+
+                    $property = new InsertPropertyNo();
+                    $property->Fk_parId = $PAR->Pk_parId;
+                    $property->type = 1;
+                    $property->save();
+
+                }else if($request->itemCost < 50000){
+                    foreach ($icsSeries as $ics){
+                        $seriesICS = $ics->series;
+                    }
+                    $ICS = new InsertICSSeries();
+                    $ICS->series = $seriesICS + 1;
+                    $ICS->save();
+
+                    $property = new InsertPropertyNo();
+                    $property->Fk_icsId = $ICS->Pk_icsId;
+                    $property->type = 0;
+                    $property->save();
+                }
+            }
+
             $propertyNo = DB::table('propertyno')->select('Pk_propertyId')->orderBy('created_at', 'desc')->first();
 
             if ($propertyNo) {
                 $Pk_propertyId = $propertyNo->Pk_propertyId;
             }
-
+            
             $isnew = false;
             if (!$condition_id) {
                 $cond = Condition::create([

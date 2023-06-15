@@ -125,10 +125,14 @@ class Fields extends Controller
     public function getICSNumSeries(){
         try {
             //get Series for ICS Number
-            $getSeries = DB::table('ics_no')->select('series')->orderBy('created_at', 'desc')->first();
+            $getSeries = DB::select('SELECT series FROM `ics_series` ORDER BY created_at DESC');
+
+            foreach($getSeries as $num){
+                $numSeries = $num->series;
+            }
 
             if ($getSeries !== null) {
-                $lastNumber = $getSeries->series;
+                $lastNumber = $numSeries;
                 $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
             } else {
                 $nextNumber = '0001';
@@ -177,7 +181,7 @@ class Fields extends Controller
         try {
             $itemId = $req->itemId;
 
-            $prev = DB::select('SELECT DISTINCT IF(par_series.series IS NOT NULL, par_series.series, ics_series.series) AS series, code FROM inventories LEFT JOIN items ON items.Pk_itemId = inventories.Fk_itemId LEFT JOIN itemcateg ON itemcateg.Pk_itemCategId = items.Fk_itemCategId LEFT JOIN propertyno ON inventories.Fk_propertyId = propertyno.Pk_propertyId LEFT JOIN par_series ON propertyno.Fk_parId = par_series.Pk_parId LEFT JOIN ics_series ON propertyno.Fk_icsId = ics_series.Pk_icsId WHERE Pk_itemId = ?', ["$itemId"]);
+            $prev = DB::select('SELECT DISTINCT IF(par_series.series IS NOT NULL, par_series.series, ics_series.series) AS series, code FROM inventories LEFT JOIN items ON items.Pk_itemId = inventories.Fk_itemId LEFT JOIN itemcateg ON itemcateg.Pk_itemCategId = items.Fk_itemCategId LEFT JOIN propertyno ON inventories.Fk_propertyId = propertyno.Pk_propertyId LEFT JOIN par_series ON propertyno.Fk_parId = par_series.Pk_parId LEFT JOIN ics_series ON propertyno.Fk_icsId = ics_series.Pk_icsId WHERE Pk_itemId = ?', ["$itemId"]); 
 
             return response()->json($prev);
 
