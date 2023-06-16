@@ -125,7 +125,7 @@ class Fields extends Controller
     public function getICSNumSeries(){
         try {
             //get Series for ICS Number
-            $getSeries = DB::select('SELECT series FROM `ics_series` ORDER BY created_at DESC');
+            $getSeries = DB::select('SELECT series FROM `ics_series` ORDER BY created_at DESC LIMIT 1');
 
             foreach($getSeries as $num){
                 $numSeries = $num->series;
@@ -177,13 +177,39 @@ class Fields extends Controller
         }
     }
 
-    public function getPrev(Request $req){
+    public function getPrevSeries(Request $req){
         try {
             $itemId = $req->itemId;
 
-            $prev = DB::select('SELECT DISTINCT IF(par_series.series IS NOT NULL, par_series.series, ics_series.series) AS series, code FROM inventories LEFT JOIN items ON items.Pk_itemId = inventories.Fk_itemId LEFT JOIN itemcateg ON itemcateg.Pk_itemCategId = items.Fk_itemCategId LEFT JOIN propertyno ON inventories.Fk_propertyId = propertyno.Pk_propertyId LEFT JOIN par_series ON propertyno.Fk_parId = par_series.Pk_parId LEFT JOIN ics_series ON propertyno.Fk_icsId = ics_series.Pk_icsId WHERE Pk_itemId = ?', ["$itemId"]); 
+            $prev = DB::select('SELECT DISTINCT IF(par_series.series IS NOT NULL, par_series.series, ics_series.series) AS series FROM inventories LEFT JOIN items ON items.Pk_itemId = inventories.Fk_itemId LEFT JOIN propertyno ON inventories.Fk_propertyId = propertyno.Pk_propertyId LEFT JOIN par_series ON propertyno.Fk_parId = par_series.Pk_parId LEFT JOIN ics_series ON propertyno.Fk_icsId = ics_series.Pk_icsId WHERE Pk_itemId = ?', ["$itemId"]); 
 
-            return response()->json($prev);
+            foreach($prev as $num){
+                $numSeries = $num->series;
+            }
+
+            if ($prev !== null) {
+                $lastNumber = $numSeries;
+                $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+            } else {
+                $nextNumber = '0001';
+            }
+
+            return response()->json($nextNumber);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
+            ]);
+        }
+    }
+
+    public function getPrevCode(Request $req){
+        try {
+            $itemId = $req->itemId;
+
+            $prevCode = DB::select('SELECT code FROM itemcateg LEFT JOIN items ON itemcateg.Pk_itemCategId = items.Fk_itemCategId WHERE Pk_itemId = ?', ["$itemId"]);
+
+            return response()->json($prevCode);
 
         } catch (\Throwable $th) {
             return response()->json([

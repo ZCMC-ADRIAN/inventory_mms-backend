@@ -11,7 +11,7 @@ class test extends Controller
     {
         try {
             //get Series for ICS Number
-            $getSeries = DB::select('SELECT series FROM `ics_series` ORDER BY created_at DESC');
+            $getSeries = DB::select('SELECT series FROM `ics_series` ORDER BY created_at DESC LIMIT 1');
 
             foreach($getSeries as $num){
                 $numSeries = $num->series;

@@ -89,7 +89,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //New Property Number
         Route::get('/series', 'GetData\Fields@getSeries');
         Route::get('/code', 'GetData\Fields@getCode');
-        Route::get('/prev', 'GetData\Fields@getPrev');
+        Route::get('/prev', 'GetData\Fields@getPrevSeries');
+        Route::get('/prevCode', 'GetData\Fields@getPrevCode');
         Route::get('/locName', 'LocationController@show');
 
         //ICS Number

@@ -73,12 +73,18 @@ class InventoryController extends Controller
             $remarks = $data['remarks'];
             $newProp = $data['newProperty'];
             $Pk_propertyId = null;
+
+            $getCost = DB::table('items')->select('cost')->where('Pk_itemId', $itemId)->get();
+
+            foreach($getCost as $resCost){
+                $cost = $resCost->cost;
+            }
             
             $parSeries = DB::table('par_series')->select('series')->get();
             $icsSeries = DB::table('ics_series')->select('series')->get();
 
             if ($request->inv === true) {
-                if ($request->itemCost >= 50000) {
+                if ($cost >= 50000) {
                     foreach ($parSeries as $par) {
                         $seriesPAR = $par->series;
                     }
@@ -91,7 +97,7 @@ class InventoryController extends Controller
                     $property->type = 1;
                     $property->save();
 
-                }else if($request->itemCost < 50000){
+                }else if($cost < 50000){
                     foreach ($icsSeries as $ics){
                         $seriesICS = $ics->series;
                     }
