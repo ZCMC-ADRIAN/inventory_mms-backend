@@ -15,6 +15,6 @@ class Associate extends Model
     protected $table = 'associate';
     public $timestamps = false;
     protected $fillable = [
-        'person_name', 'ics_number'
+        'person_name'
     ];
 }

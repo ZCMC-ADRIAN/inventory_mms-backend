@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InsertTypes extends Model
+class InsertPARNum extends Model
 {
     use HasFactory;
-    protected $table = 'types';
-    protected $primaryKey = 'Pk_typeId';
-    protected $fillable = ['type_name'];
+    protected $table = 'par_no';
+    protected $primaryKey = 'Pk_parNumId';
+    protected $fillable = ['series'];
     public $timestamps = false;
 }

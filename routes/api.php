@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/signup', [SignUp::class, 'SignUp']);
 Route::post('/signin', [SignUp::class, 'Login']);
-Route::get('/test', [test::class, 'test']);
+Route::post('/test', [test::class, 'test']);
 ///Helper 
 Route::namespace('App\Http\Controllers')->group(function () {
     Route::post('/help/upload', 'Helper\MessedUpController@messup');
@@ -29,6 +29,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/types', 'GetData\Fields@get_types');
         Route::get('/status', 'GetData\Fields@get_status');
         Route::get('/supplier', 'GetData\Fields@get_supplier');
+        Route::get('/equipments', 'GetData\Fields@getEquipments');
 
         //Variety
         Route::get('/variety', 'VarietyController@index');
@@ -94,7 +95,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/locName', 'LocationController@show');
 
         //ICS Number
-        Route::get('/icsnum', 'GetData\Fields@getICSNumSeries');
+        Route::get('/numseries', 'GetData\Fields@getNumSeries');
         Route::get('/cost', 'GetData\Fields@getCost');
     });
 });

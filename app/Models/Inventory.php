@@ -16,6 +16,7 @@ class Inventory extends Model
         'Fk_conditionsId',
         'Fk_locatmanId',
         'Fk_propertyId',
+        'Fk_assoc_relationId',
         'Delivery_date',
         'Quantity',
         'property_no',

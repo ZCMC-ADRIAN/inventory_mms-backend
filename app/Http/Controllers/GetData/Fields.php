@@ -11,7 +11,7 @@ class Fields extends Controller
     public function get_article()
     {
         try {
-            $article = DB::table('articles')->select('article_name')->get();
+            $article = DB::table('articles')->select('*')->get();
 
             return response()->json($article);
         } catch (\Throwable $th) {
@@ -24,14 +24,60 @@ class Fields extends Controller
     public function get_types(Request $req)
     {
         try {
-            $type = DB::table('types')
-                ->join('articles', 'types.Fk_articleId', '=', 'articles.Pk_articleId')
-                ->select(DB::raw('distinct(type_name)'))->where('article_name', $req->article)->whereNotNull('type_name')->get();
+            // $type = DB::table('article_relation')
+            //     ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')->join("types", 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+            //     ->select(DB::raw('distinct(type_name)'), 'types.Pk_typeId')->where('article_name', $req->article)->whereNotNull('type_name')->get();
 
-            return response()->json($type);
+            // return response()->json($type);
+
+            $articleTypes = null;
+            $peripArticleTypes = null;
+            $addArticleTypes = null;
+            
+            if (!empty($req->article)) {
+                $articleTypes = DB::table('article_relation')
+                    ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                    ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                    ->where('article_name', $req->article)
+                    ->whereNotNull('type_name')
+                    ->groupBy('type_name', 'types.Pk_typeId')
+                    ->select('type_name', 'types.Pk_typeId')
+                    ->get();
+            }
+            
+            if (!empty($req->peripArticle)) {
+                $peripArticleTypes = DB::table('article_relation')
+                    ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                    ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                    ->where('article_name', $req->peripArticle)
+                    ->whereNotNull('type_name')
+                    ->groupBy('type_name', 'types.Pk_typeId')
+                    ->select('type_name', 'types.Pk_typeId')
+                    ->get();
+            }
+            
+            if (!empty($req->addArticle)) {
+                $addArticleTypes = DB::table('article_relation')
+                    ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                    ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                    ->where('article_name', $req->addArticle)
+                    ->whereNotNull('type_name')
+                    ->groupBy('type_name', 'types.Pk_typeId')
+                    ->select('type_name', 'types.Pk_typeId')
+                    ->get();
+            }
+            
+            return response()->json([
+                'articleTypes' => $articleTypes,
+                'peripArticleTypes' => $peripArticleTypes,
+                'addArticleTypes' => $addArticleTypes
+            ]);
+            
+            
+
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => $th
+                'message' => $th -> getMessage()
             ]);
         }
     }
@@ -54,7 +100,7 @@ class Fields extends Controller
     {
         try {
             $mode = null;
-            if ($req->acquiMode === 'Purchase') {
+            if ($req->acquiMode === 'Regular') {
                 $mode = 0;
             } else if ($req->acquiMode === 'Donation') {
                 $mode = 1;
@@ -122,20 +168,40 @@ class Fields extends Controller
         }
     }
 
-    public function getICSNumSeries(){
+    public function getNumSeries(Request $req){
         try {
-            //get Series for ICS Number
-            $getSeries = DB::select('SELECT series FROM `ics_series` ORDER BY created_at DESC LIMIT 1');
 
-            foreach($getSeries as $num){
-                $numSeries = $num->series;
-            }
+            $cost = $req->cost;
+            $numSeries = null;
 
-            if ($getSeries !== null) {
-                $lastNumber = $numSeries;
-                $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-            } else {
-                $nextNumber = '0001';
+            if($cost >= 50000){
+                //get Series for PAR Number
+                $getSeries = DB::select('SELECT series FROM `par_no` ORDER BY created_at DESC LIMIT 1');
+
+                foreach($getSeries as $num){
+                    $numSeries = $num->series;
+                }
+
+                if ($getSeries !== null) {
+                    $lastNumber = $numSeries;
+                    $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+                } else {
+                    $nextNumber = '0001';
+                }
+            }elseif ($cost < 50000){
+                //get Series for ICS Number
+                $getSeries = DB::select('SELECT series FROM `ics_no` ORDER BY created_at DESC LIMIT 1');
+
+                foreach($getSeries as $num){
+                    $numSeries = $num->series;
+                }
+
+                if ($getSeries !== null) {
+                    $lastNumber = $numSeries;
+                    $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+                } else {
+                    $nextNumber = '0001';
+                }
             }
 
             return response()->json($nextNumber);
@@ -180,6 +246,7 @@ class Fields extends Controller
     public function getPrevSeries(Request $req){
         try {
             $itemId = $req->itemId;
+            $numSeries= null;
 
             $prev = DB::select('SELECT DISTINCT IF(par_series.series IS NOT NULL, par_series.series, ics_series.series) AS series FROM inventories LEFT JOIN items ON items.Pk_itemId = inventories.Fk_itemId LEFT JOIN propertyno ON inventories.Fk_propertyId = propertyno.Pk_propertyId LEFT JOIN par_series ON propertyno.Fk_parId = par_series.Pk_parId LEFT JOIN ics_series ON propertyno.Fk_icsId = ics_series.Pk_icsId WHERE Pk_itemId = ?', ["$itemId"]); 
 
@@ -210,6 +277,21 @@ class Fields extends Controller
             $prevCode = DB::select('SELECT code FROM itemcateg LEFT JOIN items ON itemcateg.Pk_itemCategId = items.Fk_itemCategId WHERE Pk_itemId = ?', ["$itemId"]);
 
             return response()->json($prevCode);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
+            ]);
+        }
+    }
+
+    public function getEquipments(Request $req){
+        try {
+            $input = $req->equipment;
+
+            $data = DB::select('SELECT DISTINCT CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc" FROM inventories LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId LEFT JOIN article_relation ON items.Fk_article_relationId = article_relation.Pk_article_relationId LEFT JOIN types ON article_relation.Fk_typeId = types.Pk_typeId LEFT JOIN articles ON article_relation.Fk_articleId = articles.Pk_articleId LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId LEFT JOIN associate ON locat_man.Fk_assocId = associate.Pk_assocId');
+
+            return response()->json($data);
 
         } catch (\Throwable $th) {
             return response()->json([

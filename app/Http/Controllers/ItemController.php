@@ -45,10 +45,11 @@ class ItemController extends Controller
                     SELECT items.Pk_itemId,a.article_name as 'item name', a.article_name as 'article name', b.brand_name, m.manu_name, t.type_name, items.remarks, v.variety,co.country,items.details2, 
                     items.warranty,items.acquisition_date,items.expiration 
                     FROM `items` 
+                    LEFT JOIN article_relation art on items.Fk_article_relationId = art.Pk_article_relationId
                     LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
                     LEFT JOIN manufacturers m on items.Fk_manuId = m.Pk_manuId 
-                    LEFT JOIN types t on items.Fk_typeId = t.Pk_typeId 
-                    LEFT JOIN articles a on t.Fk_articleId = a.Pk_articleId 
+                    LEFT JOIN types t on art.Fk_typeId = t.Pk_typeId 
+                    LEFT JOIN articles a on art.Fk_articleId = a.Pk_articleId 
                     LEFT JOIN variety v on items.Fk_varietyId = v.Pk_varietyId 
                     LEFT JOIN countries co on items.Fk_countryId = co.Pk_countryId 
                      WHERE a.article_name LIKE ? ORDER BY items.created_at DESC;", ["%$q%"]);
@@ -69,7 +70,7 @@ class ItemController extends Controller
         try {
             $items = DB::select("SELECT 
             b.brand_name as 'Brand',
-            art.article_name as 'Article',
+            arts.article_name as 'Article',
             t.type_name as 'Type', 
             s.status_name as 'Status',
             i.model as 'Model', 
@@ -87,15 +88,16 @@ class ItemController extends Controller
             i.remarks as 'Remarks',
             i.created_at as 'Created at',
             i.accessories as 'Accessories'
-            FROM `items` i JOIN types t on i.Fk_typeId = t.Pk_typeId 
+            FROM `items` i JOIN article_relation ar ON i.Fk_article_relationId = ar.Pk_article_relationId
+            LEFT JOIN articles arts ON ar.Fk_articleId = arts.Pk_articleId
+            LEFT JOIN types t ON ar.Fk_typeId = t.Pk_typeId
             LEFT JOIN status s ON i.Fk_statusId = s.Pk_statusId 
             LEFT JOIN manufacturers m ON i.Fk_manuId = m.Pk_manuId 
             LEFT JOIN suppliers su ON i.Fk_supplierId = su.Pk_supplierId 
             LEFT JOIN units u ON i.Fk_unitId = u.Pk_unitId 
             LEFT JOIN variety v ON i.Fk_varietyId = v.Pk_varietyId 
             LEFT JOIN brands b ON i.Fk_brandId = b.Pk_brandId 
-            LEFT JOIN countries c ON i.Fk_countryId = c.Pk_countryId 
-            LEFT JOIN articles art ON t.Fk_articleId = art.Pk_articleId
+            LEFT JOIN countries c ON i.Fk_countryId = c.Pk_countryId
             WHERE i.Pk_itemId = ?;", [$id]);
             return response($items);
         } catch (\Throwable $th) {

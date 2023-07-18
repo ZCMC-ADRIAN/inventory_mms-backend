@@ -10,10 +10,12 @@ use App\Models\Locatman;
 use App\Models\InsertItem;
 use App\Models\InsertCountry;
 use App\Models\InsertVariety;
-use App\Models\InsertICSNum;
 use App\Models\InsertPropertyNo;
 use App\Models\InsertICSSeries;
 use App\Models\InsertPARSeries;
+use App\Models\InsertICSNum;
+use App\Models\InsertPARNum;
+use App\Models\InsertAssocRelation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -72,19 +74,23 @@ class InventoryController extends Controller
             $quantity = $data['quantity'];
             $remarks = $data['remarks'];
             $newProp = $data['newProperty'];
+            $icsNumber = $data['icsNumber'];
+            $parNumber = $data['parNumber'];
+            $cost = $data['cost'];
             $Pk_propertyId = null;
 
             $getCost = DB::table('items')->select('cost')->where('Pk_itemId', $itemId)->get();
 
             foreach($getCost as $resCost){
-                $cost = $resCost->cost;
+                $costs = $resCost->cost;
             }
             
             $parSeries = DB::table('par_series')->select('series')->get();
             $icsSeries = DB::table('ics_series')->select('series')->get();
 
             if ($request->inv === true) {
-                if ($cost >= 50000) {
+                $seriesPAR = 0;
+                if ($costs >= 50000) {
                     foreach ($parSeries as $par) {
                         $seriesPAR = $par->series;
                     }
@@ -97,7 +103,8 @@ class InventoryController extends Controller
                     $property->type = 1;
                     $property->save();
 
-                }else if($cost < 50000){
+                }elseif ($costs < 50000){
+                    $seriesICS = 0;
                     foreach ($icsSeries as $ics){
                         $seriesICS = $ics->series;
                     }
@@ -111,6 +118,77 @@ class InventoryController extends Controller
                     $property->save();
                 }
             }
+
+           //check muna if nag exist na ang Id ng ics_no sa assoc_relation table
+           $check = InsertAssocRelation::where('Fk_assocId', $assoc_id)->pluck('Fk_assocId')->first();
+           $columnPAR = 'Fk_parNumId';
+           $columnICS = 'Fk_icsNumId';
+
+            if(!$check) {
+                if($cost < 50000){
+                    $icsNumbers = null;
+
+                    $icsNumSeries = DB::table('ics_no')->select('series')->get();
+        
+                    foreach($icsNumSeries as $resSeries){
+                        $icsNumbers = $resSeries->series;
+                    }
+        
+                    $saveNumSeries = new InsertICSNum();
+                    $saveNumSeries->series = $icsNumbers + 1;
+                    $saveNumSeries->save();
+                    $saveNumSeriesId = $saveNumSeries->Pk_icsNumId;
+
+                }elseif ($cost >= 50000){
+                    $parNumbers = null;
+
+                    $parNumSeries = DB::table('par_no')->select('series')->get();
+
+                    foreach($parNumSeries as $resSeries){
+                        $parNumbers = $resSeries->series;
+                    }
+
+                    $saveParSeries = new InsertPARNum();
+                    $saveParSeries->series = $parNumbers + 1;
+                    $saveParSeries->save();
+                    $saveParSeriesId = $saveParSeries->Pk_parNumId;
+                }
+            }else {
+                if($cost < 50000 && empty($check->$columnICS) ){
+
+                    if($request->inv === false){
+                        $icsNumbers = null;
+
+                        $icsNumSeries = DB::table('ics_no')->select('series')->get();
+            
+                        foreach($icsNumSeries as $resSeries){
+                            $icsNumbers = $resSeries->series;
+                        }
+            
+                        $saveNumSeries = new InsertICSNum();
+                        $saveNumSeries->series = $icsNumbers + 1;
+                        $saveNumSeries->save();
+                        $saveNumSeriesId = $saveNumSeries->Pk_icsNumId;
+                    }
+
+                }elseif ($cost >= 50000 && empty($check->$columnPAR)){
+                    if($request->inv === false){
+                        $parNumbers = null;
+
+                        $parNumSeries = DB::table('par_no')->select('series')->get();
+    
+                        foreach($parNumSeries as $resSeries){
+                            $parNumbers = $resSeries->series;
+                        }
+    
+                        $saveParSeries = new InsertPARNum();
+                        $saveParSeries->series = $parNumbers + 1;
+                        $saveParSeries->save();
+                        $saveParSeriesId = $saveParSeries->Pk_parNumId;
+                    }
+                }
+            }
+           
 
             $propertyNo = DB::table('propertyno')->select('Pk_propertyId')->orderBy('created_at', 'desc')->first();
 
@@ -143,6 +221,50 @@ class InventoryController extends Controller
                 $isnew = true;
             }
 
+                if(InsertAssocRelation::where('Fk_assocId', $assoc_id)->exists()){
+                    $getPk_assoc_relationId = DB::table('assoc_relation')->select('Pk_assoc_relationId')->where('Fk_assocId', $assoc_id)->get();
+     
+                    foreach($getPk_assoc_relationId as $getRes){
+                     $assocRelationId = $getRes->Pk_assoc_relationId;
+                    }
+
+                    if($request->inv === false){
+                        $columnPAR = 'par_number';
+                        $columnICS = 'ics_number';
+    
+                        if($cost >= 50000){
+                            if($check && empty($check->$columnPAR)) {
+                                DB::table('assoc_relation')
+                                ->where('Fk_assocId', $assoc_id)
+                                ->update([
+                                    'Fk_parNumId' => $saveParSeriesId,
+                                    'par_number' => $parNumber,
+                                ]);
+                            }
+                        }elseif ($cost < 50000){
+                            if($check && empty($check->$columnICS)) {
+                                DB::table('assoc_relation')
+                                ->where('Fk_assocId', $assoc_id)
+                                ->update([
+                                    'Fk_icsNumId' => $saveNumSeriesId,
+                                    'ics_number' => $icsNumber,
+                                ]);
+                            }
+                        } 
+                    }
+     
+                }else{
+                    $assocRelation = new InsertAssocRelation;
+                    $assocRelation->Fk_assocId = $assoc_id;
+                    $assocRelation->Fk_icsNumId = empty($saveNumSeriesId) ? NULL : $saveNumSeriesId;
+                    $assocRelation->Fk_parNumId = empty($saveParSeriesId) ? NULL : $saveParSeriesId;
+                    $assocRelation->ics_number = $cost < 50000 ? $icsNumber : NULL;
+                    $assocRelation->par_number = $cost >= 50000 ? $parNumber : NULL;
+                    $assocRelation->save();
+                    $assocRelationId = $assocRelation->Pk_assoc_relationId;    
+                }
+
+            
             if (!$isnew) {
                 echo 'find in db and try to get the id of the locatman';
                 $locatman = get_object_vars(DB::table('locat_man')
@@ -163,6 +285,7 @@ class InventoryController extends Controller
                 'Fk_conditionsId' => $condition_id,
                 'Fk_locatmanId' => $locatman,
                 'Fk_propertyId' => $Pk_propertyId,
+                'Fk_assoc_relationId' => $assocRelationId,
                 'Delivery_date' => $delivery_date,
                 'Quantity' => $quantity,
                 'property_no' => $prop_no,
