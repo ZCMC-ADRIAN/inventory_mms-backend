@@ -33,6 +33,7 @@ class Fields extends Controller
             $articleTypes = null;
             $peripArticleTypes = null;
             $addArticleTypes = null;
+            $editTypes = null;
             
             if (!empty($req->article)) {
                 $articleTypes = DB::table('article_relation')
@@ -66,15 +67,30 @@ class Fields extends Controller
                     ->select('type_name', 'types.Pk_typeId')
                     ->get();
             }
+
+            if(!empty($req->editArticle)){
+                $secondData = DB::table('types')
+                ->select('type_name', 'Pk_typeId')
+                ->where('type_name', 'None');
+
+                $editArticleTypes = DB::table('article_relation')
+                ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                ->select('type_name', 'types.Pk_typeId')
+                ->where('article_name', $req->editArticle)
+                ->whereNotNull('type_name')
+                ->groupBy('type_name', 'types.Pk_typeId');
+    
+                $mergedQuery = $secondData->union($editArticleTypes)->get();
+            }
             
             return response()->json([
                 'articleTypes' => $articleTypes,
                 'peripArticleTypes' => $peripArticleTypes,
-                'addArticleTypes' => $addArticleTypes
+                'addArticleTypes' => $addArticleTypes,
+                'editArticleTypes' => $mergedQuery
             ]);
             
-            
-
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th -> getMessage()
@@ -288,15 +304,26 @@ class Fields extends Controller
     public function getEquipments(Request $req){
         try {
             $input = $req->equipment;
-
-            $data = DB::select('SELECT DISTINCT CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc" FROM inventories LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId LEFT JOIN article_relation ON items.Fk_article_relationId = article_relation.Pk_article_relationId LEFT JOIN types ON article_relation.Fk_typeId = types.Pk_typeId LEFT JOIN articles ON article_relation.Fk_articleId = articles.Pk_articleId LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId LEFT JOIN associate ON locat_man.Fk_assocId = associate.Pk_assocId');
-
+        
+            $data = DB::table('inventories')
+                ->select('articles.article_name', 'types.type_name', 'items.model', 'variety.variety', 'items.details2')
+                ->distinct()
+                ->leftJoin('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
+                ->leftJoin('locat_man', 'inventories.Fk_locatmanId', '=', 'locat_man.Pk_locatmanId')
+                ->leftJoin('location', 'locat_man.Fk_locationId', '=', 'location.Pk_locationId')
+                ->leftJoin('article_relation', 'items.Fk_article_relationId', '=', 'article_relation.Pk_article_relationId')
+                ->leftJoin('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                ->leftJoin('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                ->leftJoin('variety', 'items.Fk_varietyId', '=', 'variety.Pk_varietyId')
+                ->leftJoin('associate', 'locat_man.Fk_assocId', '=', 'associate.Pk_assocId')
+                ->get();
+        
             return response()->json($data);
-
+        
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => $th -> getMessage()
+                'message' => $th->getMessage()
             ]);
-        }
+        }        
     }
 }

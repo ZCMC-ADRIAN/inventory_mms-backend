@@ -34,4 +34,20 @@ class Inventory extends Model
     {
         return $this->belongsTo(Location::class);
     }
+
+    public function item()
+    {
+        return $this->belongsTo(InsertItem::class, 'Fk_itemId', 'Pk_itemId');
+    }
+
+    public function locatMan()
+    {
+        return $this->belongsTo(LocatMan::class, 'Fk_locatmanId', 'Pk_locatmanId');
+    }
+
+    public function inventories()
+    {
+        return $this->belongsTo(Inventory::class, 'Fk_itemId', 'Pk_itemId');
+    }
+    
 }

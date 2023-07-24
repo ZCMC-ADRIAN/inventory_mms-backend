@@ -10,6 +10,7 @@ use App\Models\InsertCountry;
 use App\Models\InsertManu;
 use App\Models\InsertSupplier;
 use App\Models\InsertUnit;
+use App\Models\ArticleRelation;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Controllers\Controller;
@@ -20,8 +21,6 @@ class EditItems extends Controller
     public function editItem(Request $req)
     {
         try {
-            $resType = DB::table('items')->select('Fk_typeId')->where('Pk_itemId', $req->itemId)->get();
-            $resTypeId = DB::table('types')->select('Pk_typeId')->where('type_name', $req->type)->get();
             $brand = DB::table('brands')->where('brand_name', $req->brand)->count();
             $articles = DB::table('articles')->where('article_name', $req->article)->count();
             $category = DB::table('itemcateg')->where('itemCateg_name', $req->category)->count();
@@ -30,6 +29,13 @@ class EditItems extends Controller
             $country = DB::table('countries')->where('country', $req->countries)->count();
             $unit = DB::table('units')->where('unit', $req->unit)->count();
             $supplier = DB::table('suppliers')->where('supplier', $req->supplier)->count();
+
+            $articleRelationId = DB::table('article_relation')
+            ->select('Pk_article_relationId')
+            ->leftJoin('items', 'items.Fk_article_relationId', '=', 'article_relation.Pk_article_relationId')
+            ->where('Pk_itemId', $req->itemId)
+            ->pluck('Pk_article_relationId');
+
 
             //Update Remarks
             if ($req->remarks) {
@@ -197,44 +203,58 @@ class EditItems extends Controller
                 DB::table('items')->where('Pk_itemId', $req->itemId)->update(['model' => $req->model]);
             }
 
-            foreach ($resType as $i) {
-                $curTypeId = $i->Fk_typeId;
-            }
-
-            foreach ($resTypeId as $j) {
-                $selTypeId = $j->Pk_typeId;
-            }
-
             //Update Article
-            if ($req->article != '') {
-                if ($articles < 1) {
+            if (!empty($req->article)) {
+                $articleId = DB::table('articles')->where('article_name', $req->article)->value('Pk_articleId');
+            
+                if (!$articleId) {
                     $article = new InsertArticle();
                     $article->article_name = $req->article;
                     $article->save();
                     $articleId = $article->Pk_articleId;
-                } else {
-                    $resArticle = DB::table('articles')->select('Pk_articleId')->where('article_name', $req->article)->get();
-                    $articleId = null;
-
-                    foreach ($resArticle as $h) {
-                        $articleId = $h->Pk_articleId;
-                    }
                 }
-            }
+            }            
 
             //Update Type
-            if ($req->type != '') {
-                if ($req->otherType === 'Other') {
-                    $types = new InsertTypes();
-                    $types->type_name = $req->type;
-                    $types->Fk_articleId = $articleId;
-                    $types->save();
+            if(!empty($req->type)){
+                $typeId = DB::table('types')->where('type_name', $req->type)->value('Pk_typeId');
 
-                    DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $types->Pk_typeId]);
-                } else if ($curTypeId != $selTypeId) {
-                    DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_typeId' => $selTypeId]);
+                if(!$typeId){
+                    $type = new InsertTypes();
+                    $type->type_name = $req->type;
+                    $type->save();
+                    $typeId = $type->Pk_typeId;
                 }
             }
+
+            if (!empty($req->article)) {
+                if ($req->otherArticle === 'Other' || $req->otherType === 'Other' || $req->type === 'None') {
+                    $articleRelation = new ArticleRelation();
+                    $articleRelation->Fk_articleId = $articleId;
+                    $articleRelation->Fk_typeId = $typeId;
+                    $articleRelation->save();
+                    
+                    $latestData = ArticleRelation::latest()->first();
+
+                    if ($latestData) {
+                        $articleRelationId = $latestData->Pk_article_relationId;
+                        DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_article_relationId' => $articleRelationId]);
+                    }
+
+                } else {
+                    $getRelationId = DB::table('article_relation')
+                        ->select('Pk_article_relationId')
+                        ->join('articles', 'articles.Pk_articleId', '=', 'article_relation.Fk_articleId')
+                        ->join('types', 'types.Pk_typeId', '=', 'article_relation.Fk_typeId')
+                        ->where('article_name', $req->article)
+                        ->where('type_name', $req->type)
+                        ->pluck('Pk_article_relationId')
+                        ->first();
+            
+                    DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_article_relationId' => $getRelationId]);
+                }
+            }            
+            
 
             //Update category
             if ($req->category != '') {
@@ -254,7 +274,7 @@ class EditItems extends Controller
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                "message" => $th
+                "message" => $th -> getMessage()
             ]);
         }
     }

@@ -11,49 +11,87 @@ class Table extends Controller
     public function data_table(Request $req)
     {
         try {
-
             if ($req->has('q')) {
                 $q = $req->input('q');
-                $table = DB::select('SELECT DISTINCT CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc", SUM(Quantity) as total_qty, itemCateg_name from inventories LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId LEFT JOIN itemcateg ON items.Fk_itemCategId = itemcateg.Pk_itemCategId LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId LEFT JOIN article_relation ON items.Fk_article_relationId = article_relation.Pk_article_relationId LEFT JOIN types ON article_relation.Fk_typeId = types.Pk_typeId LEFT JOIN articles ON article_relation.Fk_articleId = articles.Pk_articleId LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId WHERE property_no LIKE ? OR `serial` LIKE ? OR location_name LIKE ? GROUP BY article_name, type_name, model, variety, details2, itemCateg_name ORDER BY inventories.created_at DESC', ["%$q%", "%$q%", "%$q%"]);
-
-                return response()->json($table);
-            } else {
-                $table = DB::select('SELECT DISTINCT CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc", SUM(Quantity) as total_qty, itemCateg_name from inventories LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId LEFT JOIN itemcateg ON items.Fk_itemCategId = itemcateg.Pk_itemCategId LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId LEFT JOIN article_relation ON items.Fk_article_relationId = article_relation.Pk_article_relationId LEFT JOIN types ON article_relation.Fk_typeId = types.Pk_typeId LEFT JOIN articles ON article_relation.Fk_articleId = articles.Pk_articleId LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId GROUP BY article_name, type_name, model, variety, details2, itemCateg_name ORDER BY inventories.created_at DESC');
-
+                
+                $table = DB::select('
+                SELECT DISTINCT CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc", SUM(Quantity) as total_qty, itemCateg_name 
+                FROM inventories 
+                LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId 
+                LEFT JOIN itemcateg ON items.Fk_itemCategId = itemcateg.Pk_itemCategId 
+                LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId 
+                LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId 
+                LEFT JOIN article_relation ON items.Fk_article_relationId = article_relation.Pk_article_relationId 
+                LEFT JOIN types ON article_relation.Fk_typeId = types.Pk_typeId 
+                LEFT JOIN articles ON article_relation.Fk_articleId = articles.Pk_articleId 
+                LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId 
+                WHERE property_no LIKE ? OR `serial` LIKE ? OR location_name LIKE ? 
+                GROUP BY article_name, type_name, model, variety, details2, itemCateg_name 
+                ORDER BY inventories.created_at DESC', ["%$q%", "%$q%", "%$q%"]);
+        
                 return response()->json($table);
             }
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => $th -> getMessage()
+                'message' => $th->getMessage()
             ]);
-        }
+        }        
     }
 
     public function details(Request $req)
     {
         try {
-            $l = $req->inventoryId;
-            $detail = DB::select('SELECT property_no, serial, location_name, person_name, unit, SUM(Quantity) as qty, cost, cost * Quantity as total_cost, brand_name, article_name, type_name, conditions_name, model, warranty, acquisition_date, fundSource, CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc" from inventories LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId LEFT JOIN units ON items.Fk_unitId = units.Pk_unitId LEFT JOIN article_relation ON items.Fk_article_relationId = article_relation.Pk_article_relationId LEFT JOIN types ON article_relation.Fk_typeId = types.Pk_typeId LEFT JOIN articles ON article_relation.Fk_articleId = articles.Pk_articleId LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId LEFT JOIN associate ON locat_man.Fk_assocId = associate.Pk_assocId LEFT JOIN conditions ON conditions.Pk_conditionsId = inventories.Fk_conditionsId LEFT JOIN brands ON items.Fk_brandId = brands.Pk_brandId WHERE Pk_inventoryId = ? GROUP BY property_no, serial, location_name, person_name, cost, variety, details2, unit, Quantity, brand_name, article_name, type_name, conditions_name, model, warranty, acquisition_date, fundSource', ["$l"]);
-
+            $inventoryId = $req->inventoryId;
+        
+            $detail = DB::table('inventories')
+                ->selectRaw('property_no, serial, location_name, person_name, unit, SUM(Quantity) as qty, cost, cost * Quantity as total_cost, brand_name, article_name, type_name, conditions_name, model, warranty, acquisition_date, fundSource, CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc"')
+                ->leftJoin('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
+                ->leftJoin('locat_man', 'inventories.Fk_locatmanId', '=', 'locat_man.Pk_locatmanId')
+                ->leftJoin('location', 'locat_man.Fk_locationId', '=', 'location.Pk_locationId')
+                ->leftJoin('units', 'items.Fk_unitId', '=', 'units.Pk_unitId')
+                ->leftJoin('article_relation', 'items.Fk_article_relationId', '=', 'article_relation.Pk_article_relationId')
+                ->leftJoin('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                ->leftJoin('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                ->leftJoin('variety', 'items.Fk_varietyId', '=', 'variety.Pk_varietyId')
+                ->leftJoin('associate', 'locat_man.Fk_assocId', '=', 'associate.Pk_assocId')
+                ->leftJoin('conditions', 'conditions.Pk_conditionsId', '=', 'inventories.Fk_conditionsId')
+                ->leftJoin('brands', 'items.Fk_brandId', '=', 'brands.Pk_brandId')
+                ->where('Pk_inventoryId', $inventoryId)
+                ->groupBy('property_no', 'serial', 'location_name', 'person_name', 'cost', 'variety', 'details2', 'unit', 'Quantity', 'brand_name', 'article_name', 'type_name', 'conditions_name', 'model', 'warranty', 'acquisition_date', 'fundSource')
+                ->get();
+        
             return response()->json($detail);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th
             ]);
-        }
+        }        
     }
 
     public function header(Request $req){
         try {
             $title = $req->header;
-            $data = DB::select('SELECT DISTINCT item_name from inventories LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId LEFT JOIN article_relation ON items.Fk_article_relationId = article_relation.Pk_article_relationId LEFT JOIN types ON article_relation.Fk_typeId = types.Pk_typeId LEFT JOIN articles ON article_relation.Fk_articleId = articles.Pk_articleId LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId WHERE CONCAT_WS(" ", article_name, type_name, model, variety, details2) = ?', ["$title"]);
-
+        
+            $data = DB::table('inventories')
+                ->select('item_name')
+                ->distinct()
+                ->join('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
+                ->join('locat_man', 'inventories.Fk_locatmanId', '=', 'locat_man.Pk_locatmanId')
+                ->join('location', 'locat_man.Fk_locationId', '=', 'location.Pk_locationId')
+                ->join('article_relation', 'items.Fk_article_relationId', '=', 'article_relation.Pk_article_relationId')
+                ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                ->join('variety', 'items.Fk_varietyId', '=', 'variety.Pk_varietyId')
+                ->whereRaw('CONCAT_WS(" ", article_name, type_name, model, variety, details2) = ?', [$title])
+                ->get();
+        
             return response()->json($data);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => $th
+                'message' => $th->getMessage()
             ]);
         }
+        
     }
 
     public function report(Request $req){
@@ -98,7 +136,7 @@ class Table extends Controller
             return response()->json([
                 'message' => $th
             ]);
-        }
+        }             
     }
 
     public function person(Request $req){

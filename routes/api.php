@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/signup', [SignUp::class, 'SignUp']);
 Route::post('/signin', [SignUp::class, 'Login']);
-Route::post('/test', [test::class, 'test']);
+Route::get('/test', [test::class, 'test']);
 ///Helper 
 Route::namespace('App\Http\Controllers')->group(function () {
     Route::post('/help/upload', 'Helper\MessedUpController@messup');
