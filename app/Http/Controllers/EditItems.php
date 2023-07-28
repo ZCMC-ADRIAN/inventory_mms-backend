@@ -64,12 +64,40 @@ class EditItems extends Controller
             // Update Acquisition Date, Warranty, and other fields similarly
 
             // Update Article and Type
+            // Update Article and Type
             if (!empty($req->article) && !empty($req->type)) {
-                $article = InsertArticle::firstOrCreate(['article_name' => $req->article]);
-                $type = InsertTypes::firstOrCreate(['type_name' => $req->type]);
-                $articleRelation = ArticleRelation::firstOrCreate(['Fk_articleId' => $article->Pk_articleId, 'Fk_typeId' => $type->Pk_typeId]);
+                // Fetch the Article and Type models
+                $article = InsertArticle::where('article_name', $req->article)->first();
+                $type = InsertTypes::where('type_name', $req->type)->first();
+
+                // Create new Article and/or Type if they don't exist
+                if (!$article) {
+                    $article = new InsertArticle(['article_name' => $req->article]);
+                    $article->save();
+                }
+
+                if (!$type) {
+                    $type = new InsertTypes(['type_name' => $req->type]);
+                    $type->save();
+                }
+
+                // Check if the ArticleRelation already exists for the given Article and Type
+                $articleRelation = ArticleRelation::where('Fk_articleId', $article->Pk_articleId)
+                                                ->where('Fk_typeId', $type->Pk_typeId)
+                                                ->first();
+
+                if (!$articleRelation) {
+                    // If the ArticleRelation doesn't exist, create a new one
+                    $articleRelation = new ArticleRelation();
+                    $articleRelation->Fk_articleId = $article->Pk_articleId;
+                    $articleRelation->Fk_typeId = $type->Pk_typeId;
+                    $articleRelation->save();
+                }
+
+                // Update the item with the ArticleRelation ID
                 $item->Fk_article_relationId = $articleRelation->Pk_article_relationId;
             }
+
 
             // Update Brand, Variety, Manufacturer, and Country
             // Implement similarly as done for Supplier and Unit above
