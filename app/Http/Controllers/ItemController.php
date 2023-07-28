@@ -19,11 +19,11 @@ class ItemController extends Controller
             if ($request->has('q')) {
                 # search item
                 $q = $request->input('q');
-                $items = DB::select("SELECT COUNT(articles.article_name) as total, articles.article_name from articles WHERE articles.article_name LIKE ? GROUP by articles.article_name;", ["%$q%"]);
+                $items = DB::select("SELECT DISTINCT property_no FROM inventories WHERE property_no LIKE ? UNION SELECT DISTINCT `serial` FROM inventories WHERE `serial` LIKE ? UNION SELECT DISTINCT article_name FROM articles WHERE article_name LIKE ?", ["%$q%", "%$q%", "%$q%"]);
                 return response()->json($items);
             } else {
                 # code... SELECT COUNT(items.item_name) as total, items.item_name from items GROUP by items.item_name;
-                $items = DB::select("SELECT COUNT(articles.article_name) as total, articles.article_name from articles  GROUP by article_name;");
+                $items = DB::select("SELECT DISTINCT property_no FROM inventories WHERE property_no IS NOT NULL UNION SELECT DISTINCT `serial` FROM inventories WHERE `serial` IS NOT NULL UNION SELECT DISTINCT article_name FROM articles;");
                 return response()->json($items);
             }
         } catch (\Throwable $th) {
@@ -42,17 +42,32 @@ class ItemController extends Controller
                 # search item
                 $q = $request->input('q');
                 $items = DB::select("
-                    SELECT items.Pk_itemId,a.article_name as 'item name', a.article_name as 'article name', b.brand_name, m.manu_name, t.type_name, items.remarks, v.variety,co.country,items.details2, 
-                    items.warranty,items.acquisition_date,items.expiration 
-                    FROM `items` 
-                    LEFT JOIN article_relation art on items.Fk_article_relationId = art.Pk_article_relationId
-                    LEFT JOIN brands b on items.Fk_brandId = b.Pk_brandId 
-                    LEFT JOIN manufacturers m on items.Fk_manuId = m.Pk_manuId 
-                    LEFT JOIN types t on art.Fk_typeId = t.Pk_typeId 
-                    LEFT JOIN articles a on art.Fk_articleId = a.Pk_articleId 
-                    LEFT JOIN variety v on items.Fk_varietyId = v.Pk_varietyId 
-                    LEFT JOIN countries co on items.Fk_countryId = co.Pk_countryId 
-                     WHERE a.article_name LIKE ? ORDER BY items.created_at DESC;", ["%$q%"]);
+                SELECT DISTINCT
+                items.Pk_itemId,
+                a.article_name AS 'item name',
+                a.article_name AS 'article name',
+                b.brand_name,
+                m.manu_name,
+                t.type_name,
+                items.remarks,
+                v.variety,
+                co.country,
+                items.details2,
+                items.warranty,
+                items.acquisition_date,
+                items.expiration
+            FROM `items`
+            LEFT JOIN article_relation art ON items.Fk_article_relationId = art.Pk_article_relationId
+            LEFT JOIN brands b ON items.Fk_brandId = b.Pk_brandId
+            LEFT JOIN manufacturers m ON items.Fk_manuId = m.Pk_manuId
+            LEFT JOIN types t ON art.Fk_typeId = t.Pk_typeId
+            LEFT JOIN articles a ON art.Fk_articleId = a.Pk_articleId
+            LEFT JOIN variety v ON items.Fk_varietyId = v.Pk_varietyId
+            LEFT JOIN countries co ON items.Fk_countryId = co.Pk_countryId
+            LEFT JOIN inventories inv ON items.Pk_itemId = inv.Fk_itemId
+            WHERE a.article_name LIKE ? OR `serial` LIKE ? OR property_no LIKE ?
+            ORDER BY items.created_at DESC;
+            ", ["%$q%", "%$q%", "%$q%"]);
                 return response()->json($items);
             } 
 
@@ -60,7 +75,7 @@ class ItemController extends Controller
             return $th;
             return response()->json([
                 'status' => 500,
-                'message' => $th
+                'message' => $th -> getMessage()
             ]);
         }
     }

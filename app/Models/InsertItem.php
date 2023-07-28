@@ -15,7 +15,7 @@ class InsertItem extends Model
         'Fk_manuId', 'Fk_supplierId',
         'Fk_unitId', 'Fk_varietyId', 'Fk_brandId',
 
-        'Fk_countryId','Fk_sourcemodeId','Fk_itemCategId', 'item_name', 'model', 'details2', 'accessories',
+        'Fk_countryId','Fk_sourcemodeId','Fk_itemCategId', 'Fk_fundClusterId', 'item_name', 'model', 'details2', 'accessories',
 
         'other', 'serial', 'warranty', 'acquisition_date',
         'property_no', 'expiration', 'cost', 'fundSource',

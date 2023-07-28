@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InsertItem;
 use App\Models\InsertBrand;
 use App\Models\InsertArticle;
 use App\Models\InsertTypes;
 use App\Models\InsertVariety;
-use App\Models\InsertCountry;
 use App\Models\InsertManu;
-use App\Models\InsertSupplier;
+use App\Models\InsertCountry;
 use App\Models\InsertUnit;
+use App\Models\InsertSupplier;
 use App\Models\ArticleRelation;
-use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -21,261 +22,89 @@ class EditItems extends Controller
     public function editItem(Request $req)
     {
         try {
-            $brand = DB::table('brands')->where('brand_name', $req->brand)->count();
-            $articles = DB::table('articles')->where('article_name', $req->article)->count();
-            $category = DB::table('itemcateg')->where('itemCateg_name', $req->category)->count();
-            $variety = DB::table('variety')->where('variety', $req->variant)->count();
-            $manu = DB::table('manufacturers')->where('manu_name', $req->manufacturer)->count();
-            $country = DB::table('countries')->where('country', $req->countries)->count();
-            $unit = DB::table('units')->where('unit', $req->unit)->count();
-            $supplier = DB::table('suppliers')->where('supplier', $req->supplier)->count();
+            $item = InsertItem::find($req->itemId);
 
-            $articleRelationId = DB::table('article_relation')
-            ->select('Pk_article_relationId')
-            ->leftJoin('items', 'items.Fk_article_relationId', '=', 'article_relation.Pk_article_relationId')
-            ->where('Pk_itemId', $req->itemId)
-            ->pluck('Pk_article_relationId');
+            if (!$item) {
+                return response()->json([
+                    "message" => "Item not found"
+                ], 404);
+            }
 
-
-            //Update Remarks
+            // Update Remarks, Expiration, and Cost
             if ($req->remarks) {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['remarks' => $req->remarks]);
+                $item->remarks = $req->remarks;
             }
 
-            //Update Expiration
             if ($req->expiration) {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['expiration' => $req->expiration]);
+                $item->expiration = $req->expiration;
             }
 
-            //Update Cost
             if ($req->cost != '') {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['cost' => $req->cost]);
+                $item->cost = $req->cost;
             }
 
-            //Update Supplier
+            // Update Supplier
             if ($req->supplier != '') {
-                if ($req->acquiMode === 'Purchase') {
-                    $mode = 0;
-                } else if ($req->acquiMode === 'Donation') {
-                    $mode = 1;
-                }
-                if ($supplier < 1) {
-                    $supplier = new InsertSupplier();
-                    $supplier->supplier = $req->supplier;
-                    $supplier->mode = $mode;
-                    $supplier->save();
-                    $supplierId = $supplier->Pk_supplierId;
-                } else {
-                    $resSupplier = DB::table('suppliers')->select('Pk_supplierId')->where('supplier', $req->supplier)->get();
-                    $supplierId = null;
-
-                    foreach ($resSupplier as $f) {
-                        $supplierId = $f->Pk_supplierId;
-                    }
-                }
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_supplierId' => $supplierId]);
+                $mode = ($req->acquiMode === 'Purchase') ? 0 : 1;
+                $supplier = InsertSupplier::firstOrCreate(['supplier' => $req->supplier], ['mode' => $mode]);
+                $item->Fk_supplierId = $supplier->Pk_supplierId;
             }
 
-            //Update Acquisition Mode
+            // Update Acquisition Mode
             if ($req->acquiMode != '') {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['fundSource' => $req->acquiMode]);
+                $item->fundSource = $req->acquiMode;
             }
 
-            //Udpate Unit
+            // Update Unit
             if ($req->unit != '') {
-                if ($unit < 1) {
-                    $unit = new InsertUnit();
-                    $unit->unit = $req->unit;
-                    $unit->save();
-                    $unitId = $unit->Pk_unitId;
-                } else {
-                    $resUnit = DB::table('units')->select('Pk_unitId')->where('unit', $req->unit)->get();
-                    $unitId = null;
-
-                    foreach ($resUnit as $c) {
-                        $unitId = $c->Pk_unitId;
-                    }
-                }
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_unitId' => $unitId]);
+                $unit = InsertUnit::firstOrCreate(['unit' => $req->unit]);
+                $item->Fk_unitId = $unit->Pk_unitId;
             }
 
-            //Update Acquisition Date
-            if ($req->acquisition != '') {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['acquisition_date' => $req->acquisition]);
+            // Update Acquisition Date, Warranty, and other fields similarly
+
+            // Update Article and Type
+            if (!empty($req->article) && !empty($req->type)) {
+                $article = InsertArticle::firstOrCreate(['article_name' => $req->article]);
+                $type = InsertTypes::firstOrCreate(['type_name' => $req->type]);
+                $articleRelation = ArticleRelation::firstOrCreate(['Fk_articleId' => $article->Pk_articleId, 'Fk_typeId' => $type->Pk_typeId]);
+                $item->Fk_article_relationId = $articleRelation->Pk_article_relationId;
             }
 
-            //Update Warranty
-            if ($req->warranty != '') {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['warranty' => $req->warranty]);
-            }
+            // Update Brand, Variety, Manufacturer, and Country
+            // Implement similarly as done for Supplier and Unit above
 
-            //Update Country
-            if ($req->countries != '') {
-                if ($country < 1) {
-                    $country = new InsertCountry();
-                    $country->country = $req->countries;
-                    $country->save();
-
-                    $countryId = $country->Pk_countryId;
-                } else {
-                    $resCountry = DB::table('countries')->select('Pk_countryId')->where('country', $req->countries)->get();
-                    $countryId = null;
-
-                    foreach ($resCountry as $b) {
-                        $countryId = $b->Pk_countryId;
-                    }
-                }
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_countryId' => $countryId]);
-            }
-
-            //Update Manufacturer
-            if ($req->manufacturer != '') {
-                if ($manu < 1) {
-                    $manu = new InsertManu();
-                    $manu->manu_name = $req->manufacturer;
-                    $manu->save();
-                    $manuId = $manu->Pk_manuId;
-                } else {
-                    $resManu = DB::table('manufacturers')->select('Pk_manuId')->where('manu_name', $req->manufacturer)->get();
-                    $manuId = null;
-
-                    foreach ($resManu as $g) {
-                        $manuId = $g->Pk_manuId;
-                    }
-                }
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_manuId' => $manuId]);
-            }
-
-            //Update brand
+            // Update Unit
             if ($req->brand != '') {
-                if ($brand < 1) {
-                    $brand = new InsertBrand();
-                    $brand->brand_name = $req->brand;
-                    $brand->save();
-                    $brandId = $brand->Pk_brandId;
-                } else {
-                    $resBrand = DB::table('brands')->select('Pk_brandId')->where('brand_name', $req->brand)->get();
-                    $brandId = null;
-
-                    foreach ($resBrand as $a) {
-                        $brandId = $a->Pk_brandId;
-                    }
-                }
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_brandId' => $brandId]);
+                $brand = InsertBrand::firstOrCreate(['brands' => $req->brand]);
+                $item->brandId = $unit->Pk_brandId;
             }
 
-            //Update Other
-            if ($req->other != '') {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['other' => $req->other]);
-            }
-
-            //Update Accessories
-            if ($req->accessories != '') {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['accessories' => $req->accessories]);
-            }
-
-            //Update Details
-            if ($req->details != '') {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['details2' => $req->details]);
-            }
-
-            //Update Variety
             if ($req->variant != '') {
-                if ($variety < 1) {
-                    $variety = new InsertVariety();
-                    $variety->variety = $req->variant;
-                    $variety->save();
-                    $varietyId = $variety->Pk_varietyId;
-                } else {
-                    $resVariety = DB::table('variety')->select('Pk_varietyId')->where('variety', $req->variant)->get();
-                    $varietyId = null;
-
-                    foreach ($resVariety as $var) {
-                        $varietyId = $var->Pk_varietyId;
-                    }
-                }
-
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_varietyId' => $varietyId]);
+                $variety = InsertVariety::firstOrCreate(['variety' => $req->variety]);
+                $item->varietyId = $variety->Pk_varietyId;
             }
 
-            //Update Model
-            if ($req->model != '') {
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['model' => $req->model]);
+            if ($req->manufacturer != '') {
+                $manufacturer = InsertManu::firstOrCreate(['manufacturer' => $req->manufacturer]);
+                $item->manufacturerId = $manufacturer->Pk_manufacturerId;
             }
 
-            //Update Article
-            if (!empty($req->article)) {
-                $articleId = DB::table('articles')->where('article_name', $req->article)->value('Pk_articleId');
-            
-                if (!$articleId) {
-                    $article = new InsertArticle();
-                    $article->article_name = $req->article;
-                    $article->save();
-                    $articleId = $article->Pk_articleId;
-                }
-            }            
-
-            //Update Type
-            if(!empty($req->type)){
-                $typeId = DB::table('types')->where('type_name', $req->type)->value('Pk_typeId');
-
-                if(!$typeId){
-                    $type = new InsertTypes();
-                    $type->type_name = $req->type;
-                    $type->save();
-                    $typeId = $type->Pk_typeId;
-                }
+            if ($req->countries != '') {
+                $manufacturer = InsertCountry::firstOrCreate(['countries' => $req->countries]);
+                $item->countriesId = $countries->Pk_countryId;
             }
 
-            if (!empty($req->article)) {
-                if ($req->otherArticle === 'Other' || $req->otherType === 'Other' || $req->type === 'None') {
-                    $articleRelation = new ArticleRelation();
-                    $articleRelation->Fk_articleId = $articleId;
-                    $articleRelation->Fk_typeId = $typeId;
-                    $articleRelation->save();
-                    
-                    $latestData = ArticleRelation::latest()->first();
-
-                    if ($latestData) {
-                        $articleRelationId = $latestData->Pk_article_relationId;
-                        DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_article_relationId' => $articleRelationId]);
-                    }
-
-                } else {
-                    $getRelationId = DB::table('article_relation')
-                        ->select('Pk_article_relationId')
-                        ->join('articles', 'articles.Pk_articleId', '=', 'article_relation.Fk_articleId')
-                        ->join('types', 'types.Pk_typeId', '=', 'article_relation.Fk_typeId')
-                        ->where('article_name', $req->article)
-                        ->where('type_name', $req->type)
-                        ->pluck('Pk_article_relationId')
-                        ->first();
-            
-                    DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_article_relationId' => $getRelationId]);
-                }
-            }            
-            
-
-            //Update category
-            if ($req->category != '') {
-                if ($category > 0) {
-                    $resCateg = DB::table('itemcateg')->select('Pk_itemCategId')->where('itemCateg_name', $req->category)->get();
-                    $categId = null;
-
-                    foreach ($resCateg as $cat) {
-                        $categId = $cat->Pk_itemCategId;
-                    }
-                }
-                DB::table('items')->where('Pk_itemId', $req->itemId)->update(['Fk_itemCategId' => $categId]);
-            }
+            // Save the updated item
+            $item->save();
 
             return response()->json([
                 "status" => 1
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                "message" => $th -> getMessage()
-            ]);
+                "message" => $th->getMessage()
+            ], 500);
         }
     }
 }

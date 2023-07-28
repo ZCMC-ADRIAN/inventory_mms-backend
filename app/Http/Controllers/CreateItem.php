@@ -20,6 +20,7 @@ use App\Models\InsertICSSeries;
 use App\Models\InsertICSDetails;
 use App\Models\InsertPARDetails;
 use App\Models\ArticleRelation;
+use App\Models\InsertFundCluster;
 
 class CreateItem extends Controller
 {
@@ -35,6 +36,7 @@ class CreateItem extends Controller
             $status = DB::table('status')->where('status_name', $req->status)->count();
             $variety = DB::table('variety')->where('variety', $req->variant)->count();
             $supplier = DB::table('suppliers')->where('supplier', $req->supplier)->count();
+            $cluster = DB::table('fundcluster')->where('fundCluster', $req->fundCluster)->count();
             $manu = DB::table('manufacturers')->where('manu_name', $req->manufacturer)->count();
             $category = DB::table('itemcateg')->select('*')->where('itemCateg_name', $req->category)->get();
             $parSeries = DB::table('par_series')->select('series')->get();
@@ -48,6 +50,7 @@ class CreateItem extends Controller
             $statusId = null;
             $varietyId = null;
             $supplierId = null;
+            $clusterId = null;
             $manuId = null;
             $articleId = null;
             $categId = null;
@@ -83,9 +86,9 @@ class CreateItem extends Controller
 
             if ($req->countries != '') {
                 if ($country < 1) {
-                    $country = new InsertCountry();
-                    $country->country = $req->countries;
-                    $country->save();
+                        $country = new InsertCountry();
+                        $country->country = $req->countries;
+                        $country->save();
 
                     $countryId = $country->Pk_countryId;
                 } else {
@@ -160,6 +163,21 @@ class CreateItem extends Controller
 
                     foreach ($resSupplier as $f) {
                         $supplierId = $f->Pk_supplierId;
+                    }
+                }
+            }
+
+            if ($req->fundCluster != '') {
+                if ($cluster < 1) {
+                    $cluster = new InsertFundCluster();
+                    $cluster->fundCluster = $req->fundCluster;
+                    $cluster->save();
+                    $clusterId = $cluster->getKey();
+                } else {
+                    $resCluster = DB::table('fundcluster')->select('Pk_fundClusterId')->where('fundCluster', $req->fundCluster)->get();
+
+                    foreach ($resCluster as $resClus) {
+                        $clusterId = $resClus->Pk_fundClusterId;
                     }
                 }
             }
@@ -272,6 +290,10 @@ class CreateItem extends Controller
                 $ics_details->invoice = $req->invoice;
                 $ics_details->invoiceDate = $req->invoice_date;
                 $ics_details->ors = $req->ors;
+                $ics_details->iar = $req->ICSIAR;
+                $ics_details->drf = $req->ICSDRF;
+                $ics_details->drf_date = $req->ICSDRFDate;
+                $ics_details->ptr_num = $req->ICSPTR;
                 $ics_details->icsRemarks = $req->ics_remarks;
                 $ics_details->save();
     
@@ -284,12 +306,19 @@ class CreateItem extends Controller
                 $icsId = null;
             }
 
-            if($req->drf != ''){
+            if($req->PARpo != ''){
                 $par_details = new InsertPARDetails();
-                $par_details->drf = $req->drf;
-                $par_details->drf_date = $req->drf_date;
-                $par_details->iar = $req->iar;
-                $par_details->parRemarks = $req->par_remarks;
+                $par_details->drf = $req->DRF;
+                $par_details->drf_date = $req->DRFDate;
+                $par_details->iar = $req->IAR;
+                $par_details->invoice = $req->invoiceNum;
+                $par_details->po_num = $req->PARpo;
+                $par_details->po_date = $req->poDate;
+                $par_details->ors_num = $req->PARors;
+                $par_details->po_conformed = $req->poConformed;
+                $par_details->invoice_rec = $req->invoiceRec;
+                $par_details->ptr_num = $req->PTR;
+                $par_details->parRemarks = $req->PARRemarks;
                 $par_details->save();
     
                 $par_detailsId = DB::table('par_details')->select('Pk_parDetails')->get();
@@ -357,6 +386,7 @@ class CreateItem extends Controller
                 $item->Fk_itemCategId = $categId;
                 $item->Fk_icsDetailsId = $icsId;
                 $item->Fk_parDetailsId = $parId;
+                $item->Fk_fundClusterId = $clusterId;
                 $item->item_name = $req->descOrig;
                 $item->model = $req->model;
                 $item->details2 = $req->details;

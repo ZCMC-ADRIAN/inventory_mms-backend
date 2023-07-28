@@ -10,13 +10,14 @@ class Inventory extends Model
     use HasFactory;
 
     protected $table = 'inventories';
+    protected $primaryKey = 'Pk_inventoryId';
     public $timestamps = false;
     protected $fillable = [
         'Fk_itemId',
         'Fk_conditionsId',
         'Fk_locatmanId',
         'Fk_propertyId',
-        'Fk_assoc_relationId',
+        'Fk_item_relationId',
         'Delivery_date',
         'Quantity',
         'property_no',

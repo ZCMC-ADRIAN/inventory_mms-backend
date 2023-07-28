@@ -34,6 +34,7 @@ class Fields extends Controller
             $peripArticleTypes = null;
             $addArticleTypes = null;
             $editTypes = null;
+            $mergedQuery = null;
             
             if (!empty($req->article)) {
                 $articleTypes = DB::table('article_relation')
@@ -46,27 +47,27 @@ class Fields extends Controller
                     ->get();
             }
             
-            if (!empty($req->peripArticle)) {
-                $peripArticleTypes = DB::table('article_relation')
-                    ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
-                    ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
-                    ->where('article_name', $req->peripArticle)
-                    ->whereNotNull('type_name')
-                    ->groupBy('type_name', 'types.Pk_typeId')
-                    ->select('type_name', 'types.Pk_typeId')
-                    ->get();
-            }
+            // if (!empty($req->peripArticle)) {
+            //     $peripArticleTypes = DB::table('article_relation')
+            //         ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+            //         ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+            //         ->where('article_name', $req->peripArticle)
+            //         ->whereNotNull('type_name')
+            //         ->groupBy('type_name', 'types.Pk_typeId')
+            //         ->select('type_name', 'types.Pk_typeId')
+            //         ->get();
+            // }
             
-            if (!empty($req->addArticle)) {
-                $addArticleTypes = DB::table('article_relation')
-                    ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
-                    ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
-                    ->where('article_name', $req->addArticle)
-                    ->whereNotNull('type_name')
-                    ->groupBy('type_name', 'types.Pk_typeId')
-                    ->select('type_name', 'types.Pk_typeId')
-                    ->get();
-            }
+            // if (!empty($req->addArticle)) {
+            //     $addArticleTypes = DB::table('article_relation')
+            //         ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+            //         ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+            //         ->where('article_name', $req->addArticle)
+            //         ->whereNotNull('type_name')
+            //         ->groupBy('type_name', 'types.Pk_typeId')
+            //         ->select('type_name', 'types.Pk_typeId')
+            //         ->get();
+            // }
 
             if(!empty($req->editArticle)){
                 $secondData = DB::table('types')
@@ -86,8 +87,8 @@ class Fields extends Controller
             
             return response()->json([
                 'articleTypes' => $articleTypes,
-                'peripArticleTypes' => $peripArticleTypes,
-                'addArticleTypes' => $addArticleTypes,
+                // 'peripArticleTypes' => $peripArticleTypes,
+                // 'addArticleTypes' => $addArticleTypes,
                 'editArticleTypes' => $mergedQuery
             ]);
             
@@ -130,6 +131,20 @@ class Fields extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th
+            ]);
+        }
+    }
+
+    public function get_cluster()
+    {
+        try {
+            $clusters = DB::table('fundcluster')->select('*')->get();
+
+            return response()->json($clusters);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
             ]);
         }
     }

@@ -1,10 +1,8 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Inventory;
-use App\Models\ArticleRelation;
 use Illuminate\Support\Facades\DB;
 
 class test extends Controller
@@ -12,25 +10,34 @@ class test extends Controller
     public function test(Request $request)
     {
         try {
-            $editArticleTypes = DB::table('article_relation')
-            ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
-            ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
-            ->select('type_name', 'types.Pk_typeId')
-            ->where('article_name', 'Keyboard')
-            ->whereNotNull('type_name')
-            ->groupBy('type_name', 'types.Pk_typeId');
-            
-            $secondData = DB::table('types')
-            ->select('type_name', 'Pk_typeId')
-            ->where('type_name', 'None');
-
-            $mergedQuery = $editArticleTypes->union($secondData)->get();
-
-            return response()->json($mergedQuery);
-
+            $data = Inventory::query()
+            ->selectRaw('CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc", location_name, person_name, cost AS "costs", Quantity AS "qty", cost * Quantity AS "total", property_no, serial, acquisition_date, "1 year" AS warranty') // Set the warranty directly to "3 years"
+            ->leftJoin('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
+            ->leftJoin('locat_man', 'inventories.Fk_locatmanId', '=', 'locat_man.Pk_locatmanId')
+            ->leftJoin('location', 'locat_man.Fk_locationId', '=', 'location.Pk_locationId')
+            ->leftJoin('article_relation', 'items.Fk_article_relationId', '=', 'article_relation.Pk_article_relationId')
+            ->leftJoin('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+            ->leftJoin('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+            ->leftJoin('variety', 'items.Fk_varietyId', '=', 'variety.Pk_varietyId')
+            ->leftJoin('units', 'items.Fk_unitId', '=', 'units.Pk_unitId')
+            ->leftJoin('associate', 'locat_man.Fk_assocId', '=', 'associate.Pk_assocId')
+            ->leftJoin('itemcateg', 'items.Fk_itemCategId', '=', 'itemcateg.Pk_itemCategId')
+            ->where('cost', '<', 50000)
+            ->with([
+                'item.articleRelation.type',
+                'item.variety',
+                'item.unit',
+                'locatMan.location',
+                'locatMan.associate',
+                'item.itemCateg',
+                'item.acquisition_date'
+            ])
+            ->get();
+        
+        return response()->json($data);               
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => $th -> getMessage()
+                'message' => $th->getMessage()
             ]);
         }
     }
