@@ -77,22 +77,22 @@ class EditItems extends Controller
             // Update Unit
             if ($req->brand != '') {
                 $brand = InsertBrand::firstOrCreate(['brands' => $req->brand]);
-                $item->brandId = $unit->Pk_brandId;
+                $item->Fk_brandId = $unit->Pk_brandId;
             }
 
             if ($req->variant != '') {
-                $variety = InsertVariety::firstOrCreate(['variety' => $req->variety]);
-                $item->varietyId = $variety->Pk_varietyId;
+                $variety = InsertVariety::firstOrCreate(['variety' => $req->variant]);
+                $item->Fk_varietyId = $variety->Pk_varietyId;
             }
 
             if ($req->manufacturer != '') {
-                $manufacturer = InsertManu::firstOrCreate(['manufacturer' => $req->manufacturer]);
-                $item->manufacturerId = $manufacturer->Pk_manufacturerId;
+                $manufacturer = InsertManu::firstOrCreate(['manu_name' => $req->manufacturer]);
+                $item->Fk_manuId = $manufacturer->Pk_manuId;
             }
 
             if ($req->countries != '') {
-                $manufacturer = InsertCountry::firstOrCreate(['countries' => $req->countries]);
-                $item->countriesId = $countries->Pk_countryId;
+                $countries = InsertCountry::firstOrCreate(['country' => $req->countries]);
+                $item->Fk_countryId = $countries->Pk_countryId;
             }
 
             // Save the updated item
