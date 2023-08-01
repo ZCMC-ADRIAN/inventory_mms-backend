@@ -283,47 +283,47 @@ class CreateItem extends Controller
                     ]);
             }          
 
-            if($req->po != ''){
-                $ics_details = new InsertICSDetails();
-                $ics_details->po_number = $req->po;
-                $ics_details->po_date = $req->po_date;
-                $ics_details->invoice = $req->invoice;
-                $ics_details->invoiceDate = $req->invoice_date;
-                $ics_details->ors = $req->ors;
-                $ics_details->iar = $req->ICSIAR;
-                $ics_details->drf = $req->ICSDRF;
-                $ics_details->drf_date = $req->ICSDRFDate;
-                $ics_details->ptr_num = $req->ICSPTR;
-                $ics_details->icsRemarks = $req->ics_remarks;
-                $ics_details->save();
+            if($req->po != ''  && $req->cost < 50000){
+                $details = new InsertICSDetails();
+                $details->po_number = $req->po;
+                $details->po_date = $req->po_date;
+                $details->invoice = $req->invoiceNum;
+                $details->invoiceDate = $req->invoiceRec;
+                $details->ors = $req->ors;
+                $details->iar = $req->IAR;
+                $details->drf = $req->DRF;
+                $details->drf_date = $req->DRFDate;
+                $details->ptr_num = $req->PTR;
+                // $details->icsRemarks = $req->ics_remarks;
+                $details->save();
     
-                $ics_detailsId = DB::table('ics_details')->select('Pk_icsDetails')->get();
+                $detailsId = DB::table('ics_details')->select('Pk_icsDetails')->get();
     
-                foreach($ics_detailsId as $resICS){
+                foreach($detailsId as $resICS){
                     $icsId = $resICS->Pk_icsDetails;
                 }
             }else{
                 $icsId = null;
             }
 
-            if($req->PARpo != ''){
+            if($req->po != '' && $req->cost > 50000){
                 $par_details = new InsertPARDetails();
                 $par_details->drf = $req->DRF;
                 $par_details->drf_date = $req->DRFDate;
                 $par_details->iar = $req->IAR;
                 $par_details->invoice = $req->invoiceNum;
-                $par_details->po_num = $req->PARpo;
+                $par_details->po_num = $req->po;
                 $par_details->po_date = $req->poDate;
-                $par_details->ors_num = $req->PARors;
+                $par_details->ors_num = $req->ors;
                 $par_details->po_conformed = $req->poConformed;
                 $par_details->invoice_rec = $req->invoiceRec;
                 $par_details->ptr_num = $req->PTR;
-                $par_details->parRemarks = $req->PARRemarks;
+                // $par_details->parRemarks = $req->PARRemarks;
                 $par_details->save();
     
-                $par_detailsId = DB::table('par_details')->select('Pk_parDetails')->get();
+                $detailsId = DB::table('par_details')->select('Pk_parDetails')->get();
     
-                foreach($par_detailsId as $resPAR){
+                foreach($detailsId as $resPAR){
                     $parId = $resPAR->Pk_parDetails;
                 }
             }else{

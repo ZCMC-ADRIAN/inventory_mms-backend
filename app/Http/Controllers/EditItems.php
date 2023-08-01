@@ -61,51 +61,50 @@ class EditItems extends Controller
                 $item->Fk_unitId = $unit->Pk_unitId;
             }
 
-            // Update Acquisition Date, Warranty, and other fields similarly
-
-            // Update Article and Type
             // Update Article and Type
             if (!empty($req->article) && !empty($req->type)) {
                 // Fetch the Article and Type models
                 $article = InsertArticle::where('article_name', $req->article)->first();
                 $type = InsertTypes::where('type_name', $req->type)->first();
-
-                // Create new Article and/or Type if they don't exist
+    
                 if (!$article) {
+                    // If the Article doesn't exist, create a new one
                     $article = new InsertArticle(['article_name' => $req->article]);
                     $article->save();
                 }
-
+    
                 if (!$type) {
+                    // If the Type doesn't exist, create a new one
                     $type = new InsertTypes(['type_name' => $req->type]);
                     $type->save();
                 }
-
+    
                 // Check if the ArticleRelation already exists for the given Article and Type
                 $articleRelation = ArticleRelation::where('Fk_articleId', $article->Pk_articleId)
                                                 ->where('Fk_typeId', $type->Pk_typeId)
                                                 ->first();
-
+    
                 if (!$articleRelation) {
                     // If the ArticleRelation doesn't exist, create a new one
                     $articleRelation = new ArticleRelation();
                     $articleRelation->Fk_articleId = $article->Pk_articleId;
                     $articleRelation->Fk_typeId = $type->Pk_typeId;
                     $articleRelation->save();
+    
+                    // Fetch the ArticleRelation again to get the correct Pk_article_relationId
+                    $articleRelation = ArticleRelation::where('Fk_articleId', $article->Pk_articleId)
+                                                    ->where('Fk_typeId', $type->Pk_typeId)
+                                                    ->first();
                 }
-
+    
                 // Update the item with the ArticleRelation ID
                 $item->Fk_article_relationId = $articleRelation->Pk_article_relationId;
             }
 
-
             // Update Brand, Variety, Manufacturer, and Country
-            // Implement similarly as done for Supplier and Unit above
-
-            // Update Unit
             if ($req->brand != '') {
-                $brand = InsertBrand::firstOrCreate(['brands' => $req->brand]);
-                $item->Fk_brandId = $unit->Pk_brandId;
+                $brand = InsertBrand::firstOrCreate(['brand_name' => $req->brand]);
+                $item->Fk_brandId = $brand->Pk_brandId;
             }
 
             if ($req->variant != '') {
@@ -127,7 +126,7 @@ class EditItems extends Controller
             $item->save();
 
             return response()->json([
-                "status" => 1
+                "status" => 1,
             ]);
         } catch (\Throwable $th) {
             return response()->json([

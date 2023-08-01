@@ -77,7 +77,6 @@ class InventoryController extends Controller
             $icsNumber = $data['icsNumber'];
             $parNumber = $data['parNumber'];
             $cost = $data['cost'];
-            $oldICS = $data['oldICS'];
             $oldPAR = $data['oldPAR'];
             $Pk_propertyId = null;
 
@@ -231,7 +230,6 @@ class InventoryController extends Controller
                 $itemRelation->Fk_icsNumId = empty($saveNumSeriesId) ? NULL : $saveNumSeriesId;
                 $itemRelation->Fk_parNumId = empty($saveParSeriesId) ? NULL : $saveParSeriesId;
                 $itemRelation->ics_number = $cost < 50000 ? $icsNumber : NULL;
-                $itemRelation->old_icsNum =  $oldICS;
                 $itemRelation->old_parNum = $oldPAR;
                 $itemRelation->par_number = $cost >= 50000 ? $parNumber : NULL;
                 $itemRelation->save();
