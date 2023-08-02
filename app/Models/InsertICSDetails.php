@@ -10,6 +10,11 @@ class InsertICSDetails extends Model
     use HasFactory;
     protected $table = 'ics_details';
     protected $primaryKey = 'Pk_icsDetails';
-    protected $fillable = ['po_number', 'po_date', 'invoice', 'invoiceDate', 'ors', 'icsRemarks'];
+    protected $fillable = ['po_date', 'invoice', 'invoiceDate', 'ors', 'icsRemarks'];
     public $timestamps = false;
+
+    public function icsId()
+    {
+        return $this->belongsTo(InsertItemRelation::class, 'Pk_icsDetailsId');
+    }
 }

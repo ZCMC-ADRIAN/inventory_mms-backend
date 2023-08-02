@@ -16,6 +16,9 @@ use App\Models\InsertPARSeries;
 use App\Models\InsertICSNum;
 use App\Models\InsertPARNum;
 use App\Models\InsertItemRelation;
+use App\Models\InsertICSDetails;
+use App\Models\InsertPARDetails;
+use App\Models\PO;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -76,6 +79,7 @@ class InventoryController extends Controller
             $newProp = $data['newProperty'];
             $icsNumber = $data['icsNumber'];
             $parNumber = $data['parNumber'];
+            $poNumber = $data['poNum'];
             $cost = $data['cost'];
             $oldPAR = $data['oldPAR'];
             $Pk_propertyId = null;
@@ -121,74 +125,83 @@ class InventoryController extends Controller
             }
 
            //check muna if nag exist na ang Id ng ics_no sa assoc_relation table
-           $check = InsertItemRelation::where('Fk_assocId', $assoc_id)->pluck('Fk_assocId')->first();
+        //    $check = InsertItemRelation::where('Fk_assocId', $assoc_id)->pluck('Fk_assocId')->first();
            $columnPAR = 'Fk_parNumId';
            $columnICS = 'Fk_icsNumId';
 
-            if(!$check) {
-                if($cost < 50000){
-                    $icsNumbers = null;
+           $existingPo = PO::where('po_number', $poNumber)->first();
 
-                    $icsNumSeries = DB::table('ics_no')->select('series')->get();
+           if (!empty($poNumber)) {
+           
+               if ($existingPo) {
+                   $poId = $existingPo->Pk_poId;
+               } else {
+                   $po = PO::create([
+                       'po_number' => $poNumber,
+                   ]);
+                   $poId = $po->Pk_poId;
+               }
+           }
+
+           if (!$existingPo) {
+            if ($cost < 50000) {
+                $icsNumbers = DB::table('ics_no')->max('series');
         
-                    foreach($icsNumSeries as $resSeries){
-                        $icsNumbers = $resSeries->series;
-                    }
+                $saveNumSeries = new InsertICSNum();
+                $saveNumSeries->series = $icsNumbers + 1;
+                $saveNumSeries->save();
+                $saveNumSeriesId = $saveNumSeries->Pk_icsNumId;
+            } elseif ($cost >= 50000) {
+                $parNumbers = DB::table('par_no')->max('series');
         
-                    $saveNumSeries = new InsertICSNum();
-                    $saveNumSeries->series = $icsNumbers + 1;
-                    $saveNumSeries->save();
-                    $saveNumSeriesId = $saveNumSeries->Pk_icsNumId;
+                $saveParSeries = new InsertPARNum();
+                $saveParSeries->series = $parNumbers + 1;
+                $saveParSeries->save();
+                $saveParSeriesId = $saveParSeries->Pk_parNumId;
+            }
+        }
+        
 
-                }elseif ($cost >= 50000){
-                    $parNumbers = null;
+        if($request->po != '' && $request->cost < 50000 && !$existingPo){
+            $details = new InsertICSDetails();
+            $details->po_date = $request->poDate;
+            $details->invoice = $request->invoiceNum;
+            $details->invoiceDate = $request->invoiceRec;
+            $details->ors = $request->ors;
+            $details->iar = $request->IAR;
+            $details->drf = $request->DRF;
+            $details->drf_date = $request->DRFDate;
+            $details->ptr_num = $request->PTR;
+            $details->save();
 
-                    $parNumSeries = DB::table('par_no')->select('series')->get();
+            $detailsId = DB::table('ics_details')->select('Pk_icsDetails')->get();
 
-                    foreach($parNumSeries as $resSeries){
-                        $parNumbers = $resSeries->series;
-                    }
-
-                    $saveParSeries = new InsertPARNum();
-                    $saveParSeries->series = $parNumbers + 1;
-                    $saveParSeries->save();
-                    $saveParSeriesId = $saveParSeries->Pk_parNumId;
-                }
-            }else {
-                if($cost < 50000 && empty($check->$columnICS) ){
-
-                    if($request->inv === false){
-                        $icsNumbers = null;
-
-                        $icsNumSeries = DB::table('ics_no')->select('series')->get();
-            
-                        foreach($icsNumSeries as $resSeries){
-                            $icsNumbers = $resSeries->series;
-                        }
-            
-                        $saveNumSeries = new InsertICSNum();
-                        $saveNumSeries->series = $icsNumbers + 1;
-                        $saveNumSeries->save();
-                        $saveNumSeriesId = $saveNumSeries->Pk_icsNumId;
-                    }
-
-                }elseif ($cost >= 50000 && empty($check->$columnPAR)){
-                    if($request->inv === false){
-                        $parNumbers = null;
-
-                        $parNumSeries = DB::table('par_no')->select('series')->get();
-    
-                        foreach($parNumSeries as $resSeries){
-                            $parNumbers = $resSeries->series;
-                        }
-    
-                        $saveParSeries = new InsertPARNum();
-                        $saveParSeries->series = $parNumbers + 1;
-                        $saveParSeries->save();
-                        $saveParSeriesId = $saveParSeries->Pk_parNumId;
-                    }
-                }
-            }  
+            foreach($detailsId as $resICS){
+                $icsId = $resICS->Pk_icsDetails;
+            }
+        }else{
+            $icsId = null;
+        }
+        
+        if (!empty($request->po) && $request->cost > 50000 && !$existingPo) {
+            $par_details = new InsertPARDetails();
+            $par_details->fill([
+                'drf' => $request->DRF,
+                'drf_date' => $request->DRFDate,
+                'iar' => $request->IAR,
+                'invoice' => $request->invoiceNum,
+                'po_date' => $request->poDate,
+                'ors_num' => $request->ors,
+                'po_conformed' => $request->poConformed,
+                'invoice_rec' => $request->invoiceRec,
+                'ptr_num' => $request->PTR,
+            ]);
+            $par_details->save();
+        
+            $parId = $par_details->Pk_parDetails;
+        } else {
+            $parId = null;
+        }  
 
             $propertyNo = DB::table('propertyno')->select('Pk_propertyId')->orderBy('created_at', 'desc')->first();
 
@@ -223,19 +236,26 @@ class InventoryController extends Controller
             
             if($request-> inv === true){
                 $itemRelationId = Inventory::where('Fk_itemId', $itemId)->pluck('Fk_item_relationId')->first();
-            }else{
-                $itemRelation = new InsertItemRelation;
-                $itemRelation->Fk_itemId = $itemId;
-                $itemRelation->Fk_assocId = $assoc_id;
-                $itemRelation->Fk_icsNumId = empty($saveNumSeriesId) ? NULL : $saveNumSeriesId;
-                $itemRelation->Fk_parNumId = empty($saveParSeriesId) ? NULL : $saveParSeriesId;
-                $itemRelation->ics_number = $cost < 50000 ? $icsNumber : NULL;
-                $itemRelation->old_parNum = $oldPAR;
-                $itemRelation->par_number = $cost >= 50000 ? $parNumber : NULL;
-                $itemRelation->save();
-                $itemRelationId = $itemRelation->Pk_item_relationId;  
-            }  
-    
+            }else{  
+                if(!$existingPo){
+                    $itemRelation = new InsertItemRelation;
+                    $itemRelation->Fk_poId = $poId;
+                    $itemRelation->Fk_icsNumId = empty($saveNumSeriesId) ? NULL : $saveNumSeriesId;
+                    $itemRelation->Fk_parNumId = empty($saveParSeriesId) ? NULL : $saveParSeriesId;
+                    $itemRelation->Fk_icsDetailsId = $icsId;
+                    $itemRelation->Fk_parDetailsId = $parId;
+                    $itemRelation->ics_number = $cost < 50000 ? $icsNumber : NULL;
+                    $itemRelation->old_parNum = $oldPAR;
+                    $itemRelation->par_number = $cost >= 50000 ? $parNumber : NULL;
+                    $itemRelation->save();
+                    $itemRelationId = $itemRelation->Pk_item_relationId;
+                }else{
+                    $checkExistingPO = InsertItemRelation::where('Fk_poId', $poId)->first();
+                    $itemRelationId = $checkExistingPO->Pk_item_relationId;
+                }
+            }
+            
+            
             
             if (!$isnew) {
                 echo 'find in db and try to get the id of the locatman';

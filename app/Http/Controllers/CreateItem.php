@@ -281,54 +281,7 @@ class CreateItem extends Controller
                         'Fk_articleId' => $articleId,
                         'Fk_typeId' => $typeId
                     ]);
-            }          
-
-            if($req->po != ''  && $req->cost < 50000){
-                $details = new InsertICSDetails();
-                $details->po_number = $req->po;
-                $details->po_date = $req->po_date;
-                $details->invoice = $req->invoiceNum;
-                $details->invoiceDate = $req->invoiceRec;
-                $details->ors = $req->ors;
-                $details->iar = $req->IAR;
-                $details->drf = $req->DRF;
-                $details->drf_date = $req->DRFDate;
-                $details->ptr_num = $req->PTR;
-                // $details->icsRemarks = $req->ics_remarks;
-                $details->save();
-    
-                $detailsId = DB::table('ics_details')->select('Pk_icsDetails')->get();
-    
-                foreach($detailsId as $resICS){
-                    $icsId = $resICS->Pk_icsDetails;
-                }
-            }else{
-                $icsId = null;
-            }
-
-            if($req->po != '' && $req->cost > 50000){
-                $par_details = new InsertPARDetails();
-                $par_details->drf = $req->DRF;
-                $par_details->drf_date = $req->DRFDate;
-                $par_details->iar = $req->IAR;
-                $par_details->invoice = $req->invoiceNum;
-                $par_details->po_num = $req->po;
-                $par_details->po_date = $req->poDate;
-                $par_details->ors_num = $req->ors;
-                $par_details->po_conformed = $req->poConformed;
-                $par_details->invoice_rec = $req->invoiceRec;
-                $par_details->ptr_num = $req->PTR;
-                // $par_details->parRemarks = $req->PARRemarks;
-                $par_details->save();
-    
-                $detailsId = DB::table('par_details')->select('Pk_parDetails')->get();
-    
-                foreach($detailsId as $resPAR){
-                    $parId = $resPAR->Pk_parDetails;
-                }
-            }else{
-                $parId = null;
-            }
+            }                    
 
             $itemCheck = DB::table('items')
                 //->where('Fk_typeId', $types->Pk_typeId)
@@ -384,8 +337,6 @@ class CreateItem extends Controller
                 $item->Fk_brandId = $brandId;
                 $item->Fk_countryId = $countryId;
                 $item->Fk_itemCategId = $categId;
-                $item->Fk_icsDetailsId = $icsId;
-                $item->Fk_parDetailsId = $parId;
                 $item->Fk_fundClusterId = $clusterId;
                 $item->item_name = $req->descOrig;
                 $item->model = $req->model;

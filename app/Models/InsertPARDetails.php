@@ -10,6 +10,6 @@ class InsertPARDetails extends Model
     use HasFactory;
     protected $table = 'par_details';
     protected $primaryKey = 'Pk_parDetails';
-    protected $fillable = ['invoice','drf', 'drf_date', 'iar', 'parRemarks', 'po_num', 'po_date', 'ors_num', 'po_conformed', 'invoice_rec', 'ptr_num'];
+    protected $fillable = ['invoice','drf', 'drf_date', 'iar', 'parRemarks', 'po_date', 'ors_num', 'po_conformed', 'invoice_rec', 'ptr_num'];
     public $timestamps = false;
 }

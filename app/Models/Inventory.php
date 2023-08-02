@@ -50,5 +50,13 @@ class Inventory extends Model
     {
         return $this->belongsTo(Inventory::class, 'Fk_itemId', 'Pk_itemId');
     }
-    
+
+    public function fundcluster()
+    {
+        return $this->belongsTo(InsertFundCluster::class, 'Fk_fundClusterId', 'Pk_fundClusterId');
+    }
+    // public function par_details()
+    // {
+    //     return $this->belongsTo(InsertItemRelation::class, 'Fk_parDetailsId', 'Pk_parDetailsId');
+    // }
 }

@@ -21,5 +21,10 @@ class InsertItem extends Model
         'property_no', 'expiration', 'cost', 'fundSource',
         'remarks', 'isStored',
     ];
+
+    public function fundcluster()
+    {
+        return $this->belongsTo(InsertFundCluster::class, 'Fk_fundClusterId', 'Pk_fundClusterId');
+    }
     public $timestamps = false;
 }
