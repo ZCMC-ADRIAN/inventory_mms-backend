@@ -10,7 +10,7 @@ class InsertICSDetails extends Model
     use HasFactory;
     protected $table = 'ics_details';
     protected $primaryKey = 'Pk_icsDetails';
-    protected $fillable = ['po_date', 'invoice', 'invoiceDate', 'ors', 'icsRemarks'];
+    protected $fillable = ['Fk_fundClusterId', 'po_date', 'invoice', 'invoiceDate', 'ors', 'icsRemarks'];
     public $timestamps = false;
 
     public function icsId()

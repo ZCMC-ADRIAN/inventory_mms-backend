@@ -36,7 +36,6 @@ class CreateItem extends Controller
             $status = DB::table('status')->where('status_name', $req->status)->count();
             $variety = DB::table('variety')->where('variety', $req->variant)->count();
             $supplier = DB::table('suppliers')->where('supplier', $req->supplier)->count();
-            $cluster = DB::table('fundcluster')->where('fundCluster', $req->fundCluster)->count();
             $manu = DB::table('manufacturers')->where('manu_name', $req->manufacturer)->count();
             $category = DB::table('itemcateg')->select('*')->where('itemCateg_name', $req->category)->get();
             $parSeries = DB::table('par_series')->select('series')->get();
@@ -163,21 +162,6 @@ class CreateItem extends Controller
 
                     foreach ($resSupplier as $f) {
                         $supplierId = $f->Pk_supplierId;
-                    }
-                }
-            }
-
-            if ($req->fundCluster != '') {
-                if ($cluster < 1) {
-                    $cluster = new InsertFundCluster();
-                    $cluster->fundCluster = $req->fundCluster;
-                    $cluster->save();
-                    $clusterId = $cluster->getKey();
-                } else {
-                    $resCluster = DB::table('fundcluster')->select('Pk_fundClusterId')->where('fundCluster', $req->fundCluster)->get();
-
-                    foreach ($resCluster as $resClus) {
-                        $clusterId = $resClus->Pk_fundClusterId;
                     }
                 }
             }
@@ -337,7 +321,6 @@ class CreateItem extends Controller
                 $item->Fk_brandId = $brandId;
                 $item->Fk_countryId = $countryId;
                 $item->Fk_itemCategId = $categId;
-                $item->Fk_fundClusterId = $clusterId;
                 $item->item_name = $req->descOrig;
                 $item->model = $req->model;
                 $item->details2 = $req->details;

@@ -18,6 +18,7 @@ use App\Models\InsertPARNum;
 use App\Models\InsertItemRelation;
 use App\Models\InsertICSDetails;
 use App\Models\InsertPARDetails;
+use App\Models\InsertFundCluster;
 use App\Models\PO;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -160,10 +161,28 @@ class InventoryController extends Controller
                 $saveParSeriesId = $saveParSeries->Pk_parNumId;
             }
         }
+
+        $cluster = DB::table('fundcluster')->where('fundCluster', $request->fundCluster)->count();
+        $clusterId = null;
+        if ($request->fundCluster != '') {
+            if ($cluster < 1) {
+                $cluster = new InsertFundCluster();
+                $cluster->fundCluster = $request->fundCluster;
+                $cluster->save();
+                $clusterId = $cluster->getKey();
+            } else {
+                $resCluster = DB::table('fundcluster')->select('Pk_fundClusterId')->where('fundCluster', $request->fundCluster)->get();
+
+                foreach ($resCluster as $resClus) {
+                    $clusterId = $resClus->Pk_fundClusterId;
+                }
+            }
+        }
         
 
         if($request->po != '' && $request->cost < 50000 && !$existingPo){
             $details = new InsertICSDetails();
+            $details->Fk_fundClusterId = $clusterId;
             $details->po_date = $request->poDate;
             $details->invoice = $request->invoiceNum;
             $details->invoiceDate = $request->invoiceRec;
@@ -186,6 +205,7 @@ class InventoryController extends Controller
         if (!empty($request->po) && $request->cost > 50000 && !$existingPo) {
             $par_details = new InsertPARDetails();
             $par_details->fill([
+                'Fk_fundClusterId' => $clusterId,
                 'drf' => $request->DRF,
                 'drf_date' => $request->DRFDate,
                 'iar' => $request->IAR,

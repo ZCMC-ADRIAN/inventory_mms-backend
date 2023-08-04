@@ -12,6 +12,7 @@ use App\Models\InsertCountry;
 use App\Models\InsertUnit;
 use App\Models\InsertSupplier;
 use App\Models\ArticleRelation;
+use App\Models\Inventory;
 
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -22,7 +23,22 @@ class EditItems extends Controller
     public function editItem(Request $req)
     {
         try {
-            $item = InsertItem::find($req->itemId);
+            if (!empty($req->itemId)) {
+                $item = InsertItem::find($req->itemId);
+            } elseif (!empty($req->inventoryId)) {
+                $inventory = Inventory::find($req->inventoryId);
+                if ($inventory) {
+                    $item = $inventory->item;
+                } else {
+                    return response()->json([
+                        "message" => "Inventory not found"
+                    ], 404);
+                }
+            } else {
+                return response()->json([
+                    "message" => "Neither itemId nor inventoryId provided"
+                ], 400);
+            }
 
             if (!$item) {
                 return response()->json([

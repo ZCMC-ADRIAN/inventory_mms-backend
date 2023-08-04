@@ -24,71 +24,33 @@ class Fields extends Controller
     public function get_types(Request $req)
     {
         try {
-            // $type = DB::table('article_relation')
-            //     ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')->join("types", 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
-            //     ->select(DB::raw('distinct(type_name)'), 'types.Pk_typeId')->where('article_name', $req->article)->whereNotNull('type_name')->get();
-
-            // return response()->json($type);
 
             $articleTypes = null;
-            $peripArticleTypes = null;
-            $addArticleTypes = null;
             $editTypes = null;
-            $mergedQuery = null;
+            $editArticleTypes = null;
             
-            // if (!empty($req->article)) {
-            //     $articleTypes = DB::table('article_relation')
-            //         ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
-            //         ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
-            //         ->where('article_name', $req->article)
-            //         ->whereNotNull('type_name')
-            //         ->groupBy('type_name', 'types.Pk_typeId')
-            //         ->select('type_name', 'types.Pk_typeId')
-            //         ->get();
-            // }
-            
-            // if (!empty($req->peripArticle)) {
-            //     $peripArticleTypes = DB::table('article_relation')
-            //         ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
-            //         ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
-            //         ->where('article_name', $req->peripArticle)
-            //         ->whereNotNull('type_name')
-            //         ->groupBy('type_name', 'types.Pk_typeId')
-            //         ->select('type_name', 'types.Pk_typeId')
-            //         ->get();
-            // }
-            
-            // if (!empty($req->addArticle)) {
-            //     $addArticleTypes = DB::table('article_relation')
-            //         ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
-            //         ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
-            //         ->where('article_name', $req->addArticle)
-            //         ->whereNotNull('type_name')
-            //         ->groupBy('type_name', 'types.Pk_typeId')
-            //         ->select('type_name', 'types.Pk_typeId')
-            //         ->get();
-            // }
+            if(!empty($req->article)) {
+                $articleTypes = DB::table('article_relation')
+                    ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                    ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                    ->where('article_name', $req->article)
+                    ->whereNotNull('type_name')
+                    ->groupBy('type_name', 'types.Pk_typeId')
+                    ->select('type_name', 'types.Pk_typeId')
+                    ->get();
+            }
 
             if(!empty($req->editArticle)){
-                // $secondData = DB::table('types')
-                // ->select('type_name', 'Pk_typeId')
-                // ->where('type_name', 'None');
-
                 $editArticleTypes = DB::table('article_relation')
                 ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
                 ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
                 ->select('type_name', 'types.Pk_typeId')
                 ->where('article_name', $req->editArticle)
                 ->whereNotNull('type_name')->get();
-                // ->groupBy('type_name', 'types.Pk_typeId');
-    
-                // $mergedQuery = $secondData->union($editArticleTypes)->get();
             }
             
             return response()->json([
-                // 'articleTypes' => $articleTypes,
-                // 'peripArticleTypes' => $peripArticleTypes,
-                // 'addArticleTypes' => $addArticleTypes,
+                'articleTypes' => $articleTypes,
                 'editArticleTypes' => $editArticleTypes
             ]);
             

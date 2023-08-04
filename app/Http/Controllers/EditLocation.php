@@ -76,10 +76,10 @@ class EditLocation extends Controller
                     $location_id = $location->id;
                     $isnew = true;
                 } else {
-                    $location_id = $currData->first()->Fk_locationId;
+                    $location_id = $currData->first()->Fk_locationId ?? null; // Handle undefined property
                 }
             }
-
+            
             // For Associates
             if (!$assoc_id) {
                 if (!empty($newAssoc_name)) {
@@ -89,10 +89,10 @@ class EditLocation extends Controller
                     $assoc_id = $associate->id;
                     $isnew = true;
                 } else {
-                    $assoc_id = $currData->first()->Fk_assocId;
+                    $assoc_id = $currData->first()->Fk_assocId ?? null; // Handle undefined property
                 }
             }
-
+            
             if (!$isnew) {
                 $locatman = Locatman::where('Fk_assocId', $assoc_id)
                     ->where('Fk_locationId', $location_id)
@@ -102,7 +102,7 @@ class EditLocation extends Controller
                     'Fk_assocId' => $assoc_id,
                     'Fk_locationId' => $location_id,
                 ])->id;
-            }
+            }            
 
             DB::table('inventories')
                 ->where('Pk_inventoryId', $req->inventoryId)
