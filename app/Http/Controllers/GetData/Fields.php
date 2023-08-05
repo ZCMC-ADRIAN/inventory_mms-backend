@@ -24,14 +24,54 @@ class Fields extends Controller
     public function get_types(Request $req)
     {
         try {
-            $type = DB::table('types')
-                ->join('articles', 'types.Fk_articleId', '=', 'articles.Pk_articleId')
-                ->select(DB::raw('distinct(type_name)'))->where('article_name', $req->article)->whereNotNull('type_name')->get();
+            // $type = DB::table('article_relation')
+            //     ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')->join("types", 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+            //     ->select(DB::raw('distinct(type_name)'), 'types.Pk_typeId')->where('article_name', $req->article)->whereNotNull('type_name')->get();
 
-            return response()->json($type);
+            // return response()->json($type);
+
+            $articleTypes = null;
+            $peripArticleTypes = null;
+            $addArticleTypes = null;
+            $editTypes = null;
+
+            $mergedQuery = null;
+            
+            if (!empty($req->article)) {
+                $articleTypes = DB::table('article_relation')
+                    ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                    ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                    ->where('article_name', $req->article)
+                    ->whereNotNull('type_name')
+                    ->groupBy('type_name', 'types.Pk_typeId')
+                    ->select('type_name', 'types.Pk_typeId')
+                    ->get();
+            }
+
+            if(!empty($req->editArticle)){
+                $secondData = DB::table('types')
+                ->select('type_name', 'Pk_typeId')
+                ->where('type_name', 'None');
+
+                $editArticleTypes = DB::table('article_relation')
+                ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                ->select('type_name', 'types.Pk_typeId')
+                ->where('article_name', $req->editArticle)
+                ->whereNotNull('type_name')
+                ->groupBy('type_name', 'types.Pk_typeId');
+    
+                $mergedQuery = $secondData->union($editArticleTypes)->get();
+            }
+            
+            return response()->json([
+                'articleTypes' => $articleTypes,
+                'editArticleTypes' => $mergedQuery
+            ]);
+            
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => $th
+                'message' => $th -> getMessage()
             ]);
         }
     }
@@ -84,6 +124,21 @@ class Fields extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th
+            ]);
+        }
+    }
+
+    public function getCode(Request $req){
+        try {
+            $category = $req->categ;
+
+            $categCode = DB::table('itemcateg')->select('code')->where('itemCateg_name', $category)->get();
+
+            return response()->json($categCode);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
             ]);
         }
     }

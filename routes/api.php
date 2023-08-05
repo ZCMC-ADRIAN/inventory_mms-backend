@@ -85,5 +85,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         //No Property Tag
         Route::get('/no-property', 'GetData\PropertyTag@no_property');
+
+        //New Property Number
+        Route::get('/code', 'GetData\Fields@getCode');
     });
 });

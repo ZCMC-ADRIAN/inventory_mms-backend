@@ -34,22 +34,36 @@ class ItemTable extends Controller
     public function items(Request $req)
     {
         try {
+            $q = $req->input('q');
+            $l = $req->desc;
+        
+            $query = DB::table('inventories')
+                ->select('*')
+                ->addSelect(DB::raw('CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS `desc`')) // Escaped the alias `desc` with backticks
+                ->leftJoin('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
+                ->leftJoin('locat_man', 'inventories.Fk_locatmanId', '=', 'locat_man.Pk_locatmanId')
+                ->leftJoin('location', 'locat_man.Fk_locationId', '=', 'location.Pk_locationId')
+                ->leftJoin('article_relation', 'items.Fk_article_relationId', '=', 'article_relation.Pk_article_relationId')
+                ->leftJoin('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
+                ->leftJoin('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
+                ->leftJoin('variety', 'items.Fk_varietyId', '=', 'variety.Pk_varietyId')
+                ->leftJoin('associate', 'locat_man.Fk_assocId', '=', 'associate.Pk_assocId')
+                ->orderBy('inventories.created_at', 'DESC');
+        
             if ($req->has('q')) {
-                $q = $req->input('q');
-                $l = $req->desc;
-                $items = DB::select('SELECT *, CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc" FROM inventories LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId LEFT JOIN types ON items.Fk_typeId = types.Pk_typeId LEFT JOIN articles ON types.Fk_articleId = articles.Pk_articleId LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId LEFT JOIN associate ON locat_man.Fk_assocId = associate.Pk_assocId WHERE location_name LIKE ? AND CONCAT_WS(" ", article_name, type_name, model, variety, details2) = ?', ["%$q%", "$l"]);
-
-                return response()->json($items);
+                $query->where('location_name', 'LIKE', "%$q%")
+                      ->where(DB::raw('CONCAT_WS(" ", article_name, type_name, model, variety, details2)'), '=', $l);
             } else {
-                $l = $req->desc;
-                $items = DB::select('SELECT *, CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc" FROM inventories LEFT JOIN items ON inventories.Fk_itemId = items.Pk_itemId LEFT JOIN locat_man ON inventories.Fk_locatmanId = locat_man.Pk_locatmanId LEFT JOIN location ON locat_man.Fk_locationId = location.Pk_locationId LEFT JOIN types ON items.Fk_typeId = types.Pk_typeId LEFT JOIN articles ON types.Fk_articleId = articles.Pk_articleId LEFT JOIN variety ON items.Fk_varietyId = variety.Pk_varietyId LEFT JOIN associate ON locat_man.Fk_assocId = associate.Pk_assocId WHERE CONCAT_WS(" ", article_name, type_name, model, variety, details2) = ?', ["$l"]);
-
-                return response()->json($items);
+                $query->where(DB::raw('CONCAT_WS(" ", article_name, type_name, model, variety, details2)'), '=', $l);
             }
+        
+            $items = $query->get();
+        
+            return response()->json($items);
         } catch (\Throwable $th) {
             return response()->json([
-                'message' => $th
+                'message' => $th->getMessage()
             ]);
-        }
+        }        
     }
 }

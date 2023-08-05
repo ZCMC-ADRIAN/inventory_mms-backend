@@ -17,6 +17,9 @@ use App\Models\InsertItem;
 use App\Models\InsertPARSeries;
 use App\Models\InsertPropertyNo;
 use App\Models\InsertICSSeries;
+use App\Models\InsertICSDetails;
+use App\Models\InsertPARDetails;
+use App\Models\ArticleRelation;
 
 class CreateItem extends Controller
 {
@@ -25,6 +28,7 @@ class CreateItem extends Controller
         try {
             DB::beginTransaction();
             $articles = DB::table('articles')->where('article_name', $req->article)->count();
+            $types = DB::table('types')->where('type_name', $req->type)->count();
             $brand = DB::table('brands')->where('brand_name', $req->brand)->count();
             $country = DB::table('countries')->where('country', $req->countries)->count();
             $unit = DB::table('units')->where('unit', $req->unit)->count();
@@ -35,6 +39,8 @@ class CreateItem extends Controller
             $category = DB::table('itemcateg')->select('*')->where('itemCateg_name', $req->category)->get();
             $parSeries = DB::table('par_series')->select('series')->get();
             $icsSeries = DB::table('ics_series')->select('series')->get();
+            $selectedArticleId = $req->articleId;
+            $selectedTypeId = $req->typeId;
 
             $brandId = null;
             $countryId = null;
@@ -45,13 +51,17 @@ class CreateItem extends Controller
             $manuId = null;
             $articleId = null;
             $categId = null;
+            $icsDetailsId = null;
+            $parDetailsId = null;
             $userId = $req->userId;
             $mode = null;
             $seriesPAR = null;
             $seriesICS = null;
+            $articleRelationId = null;
 
             $isIN = $req->isIN;
             $isNew = false;
+
             foreach ($category as $a) {
                 $categId = $a->Pk_itemCategId;
             }
@@ -134,7 +144,7 @@ class CreateItem extends Controller
             }
 
             if ($req->supplier != '') {
-                if ($req->acquisitionMode === 'Purchase') {
+                if ($req->acquisitionMode === 'Regular') {
                     $mode = 0;
                 } else if ($req->acquisitionMode === 'Donation') {
                     $mode = 1;
@@ -169,66 +179,127 @@ class CreateItem extends Controller
                 }
             }
 
-            if ($req->article != '') {
-                if ($articles < 1) {
-                    $article = new InsertArticle();
-                    $article->article_name = $req->article;
-                    $article->save();
-                    $articleId = $article->Pk_articleId;
-                } else {
-                    $resArticle = DB::table('articles')->select('Pk_articleId')->where('article_name', $req->article)->get();
-
-                    foreach ($resArticle as $h) {
-                        $articleId = $h->Pk_articleId;
-                    }
-                }
-            }
-
-            //Insert PAR Series
-            if ($req->barcode != null && $req->property_no === null) {
-                if ($req->cost >= 50000) {
-                    foreach ($parSeries as $par) {
-                        $seriesPAR = $par->series;
-                    }
-                    $PAR = new InsertPARSeries();
-                    $PAR->series = $seriesPAR + 1;
-                    $PAR->save();
-
-                    $property = new InsertPropertyNo();
-                    $property->Fk_parId = $PAR->Pk_parId;
-                    $property->type = 1;
-                    $property->save();
-
-                }else if($req->cost < 50000){
-                    foreach ($icsSeries as $ics){
-                        $seriesICS = $ics->series;
-                    }
-                    $ICS = new InsertICSSeries();
-                    $ICS->series = $seriesICS + 1;
-                    $ICS->save();
-
-                    $property = new InsertPropertyNo();
-                    $property->Fk_icsId = $ICS->Pk_icsId;
-                    $property->type = 0;
-                    $property->save();
-                }
-            }
-
             //check if the item about to insert is existing.
             // all the query if empty make it null
 
             $itemId = null;
 
-            $canContinue = DB::table('types')
-                ->where('type_name', $req->type)
-                ->where('Fk_articleId', $articleId)
-                ->exists();
-            //echo $canContinue.$req->type.$articleId;
+            //Insert Article Name
+            $isnew = false;
+            if($articles < 1){
+                $art = InsertArticle::create([
+                    'article_name' => $req->article
+                ]);
+                $articleId = $art->Pk_articleId;
+                $isnew = true;
+            }else{
+                $articleId = DB::table('articles')->where('article_name', $req->article)->value('Pk_articleId');
+                $isnew = false;
+            }
 
-            $types = new InsertTypes();
-            $types->type_name = $req->type;
-            $types->Fk_articleId = $articleId;
-            $types->save();
+            //Insert PAR Series
+            // if($req->create === false) {
+            //     if ($req->barcode != null || $req->property_no === null) {
+            //         if ($req->cost >= 50000) {
+            //             foreach ($parSeries as $par) {
+            //                 $seriesPAR = $par->series;
+            //             }
+            //             $PAR = new InsertPARSeries();
+            //             $PAR->series = $seriesPAR + 1;
+            //             $PAR->save();
+    
+            //             $property = new InsertPropertyNo();
+            //             $property->Fk_parId = $PAR->Pk_parId;
+            //             $property->type = 1;
+            //             $property->save();
+    
+            //         }else if($req->cost < 50000){
+            //             foreach ($icsSeries as $ics){
+            //                 $seriesICS = $ics->series;
+            //             }
+            //             $ICS = new InsertICSSeries();
+            //             $ICS->series = $seriesICS + 1;
+            //             $ICS->save();
+    
+            //             $property = new InsertPropertyNo();
+            //             $property->Fk_icsId = $ICS->Pk_icsId;
+            //             $property->type = 0;
+            //             $property->save();
+            //         }
+            //     }
+            // }
+
+            //Insert Type Name
+            if($types < 1){
+                $type = InsertTypes::create([
+                    'type_name' => $req->type
+                ]);
+                $typeId = $type->Pk_typeId;
+                $isnew = true;
+            }else{
+                $typeId = DB::table('types')->where('type_name', $req->type)->value('Pk_typeId');
+                $isnew = false;
+            }
+
+            $canContinue = DB::table('article_relation')
+            ->where('Fk_typeId', $typeId)
+            ->exists();
+
+            //Insert Article & Type Relation
+            $articleRelationId = null;
+
+            if (!$isnew) {
+                $getArtRelation = DB::table('article_relation')
+                    ->where('Fk_articleId', $articleId)
+                    ->where('Fk_typeId', $typeId)
+                    ->value('Pk_article_relationId');
+
+                if ($getArtRelation) {
+                    $articleRelationId = $getArtRelation;
+                }
+            } else {
+                $articleRelationId = DB::table('article_relation')
+                    ->insertGetId([
+                        'Fk_articleId' => $articleId,
+                        'Fk_typeId' => $typeId
+                    ]);
+            }          
+
+            // if($req->po != ''){
+            //     $ics_details = new InsertICSDetails();
+            //     $ics_details->po_number = $req->po;
+            //     $ics_details->po_date = $req->po_date;
+            //     $ics_details->invoice = $req->invoice;
+            //     $ics_details->invoiceDate = $req->invoice_date;
+            //     $ics_details->ors = $req->ors;
+            //     $ics_details->icsRemarks = $req->ics_remarks;
+            //     $ics_details->save();
+    
+            //     $ics_detailsId = DB::table('ics_details')->select('Pk_icsDetails')->get();
+    
+            //     foreach($ics_detailsId as $resICS){
+            //         $icsId = $resICS->Pk_icsDetails;
+            //     }
+            // }else{
+            //     $icsId = null;
+            // }
+
+            // if($req->drf != ''){
+            //     $par_details = new InsertPARDetails();
+            //     $par_details->drf = $req->drf;
+            //     $par_details->drf_date = $req->drf_date;
+            //     $par_details->iar = $req->iar;
+            //     $par_details->parRemarks = $req->par_remarks;
+            //     $par_details->save();
+    
+            //     $par_detailsId = DB::table('par_details')->select('Pk_parDetails')->get();
+    
+            //     foreach($par_detailsId as $resPAR){
+            //         $parId = $resPAR->Pk_parDetails;
+            //     }
+            // }else{
+            //     $parId = null;
+            // }
 
             $itemCheck = DB::table('items')
                 //->where('Fk_typeId', $types->Pk_typeId)
@@ -275,7 +346,7 @@ class CreateItem extends Controller
                 //echo 'not existed new saved';
                 $isNew = true;
                 $item = new InsertItem();
-                $item->Fk_typeId = $types->Pk_typeId;
+                $item->Fk_article_relationId = $articleRelationId;
                 $item->Fk_statusId = $statusId;
                 $item->Fk_manuId = $manuId;
                 $item->Fk_supplierId = $supplierId;
@@ -284,6 +355,8 @@ class CreateItem extends Controller
                 $item->Fk_brandId = $brandId;
                 $item->Fk_countryId = $countryId;
                 $item->Fk_itemCategId = $categId;
+                // $item->Fk_icsDetailsId = $icsId;
+                // $item->Fk_parDetailsId = $parId;
                 $item->item_name = $req->descOrig;
                 $item->model = $req->model;
                 $item->details2 = $req->details;
@@ -294,7 +367,6 @@ class CreateItem extends Controller
                 $item->expiration = $req->expiration;
                 $item->cost = $req->cost;
                 $item->fundSource = $req->acquisitionMode;
-                $item->barcode = $req->barcode;
                 $item->save();
                 $itemId = $item->Pk_itemId;
             }
