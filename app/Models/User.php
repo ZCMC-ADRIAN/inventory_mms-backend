@@ -18,7 +18,9 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $table = 'users';
+    
     protected $primaryKey = 'userId';
+
     protected $fillable = [
         'firstname',
         'lastname',
@@ -45,4 +47,36 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public $timestamp = FALSE;
+
+    public function user()
+    {
+        return $this->HasMany('App\Models\User');
+    }
+
+    //Roles Relationship
+    public function role()
+    {
+        return $this->belongsToMany('App\Models\Role');
+    }
+
+    public function hasAnyRoles($roles)
+    {
+        if($this->role()->wherIn('name', $roles)->first()){
+            return true;
+        }
+
+        return false;
+    }
+
+    public function hasRole($role)
+    {
+        if($this->role()->where('name', $role)->first()){
+            return true;
+        }
+
+        return false;
+    }
+
 }

@@ -20,7 +20,6 @@ class TypesSeeder extends Seeder
 
         DB::table('types')->insert([
             "Pk_typeId" => 1,
-            "Fk_articleId" => 105,
             'type_name' => "Electric",
             "created_at" => Carbon::now(),
             
