@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ParNumber;
+use App\Models\Regular;
 use Illuminate\Http\Request;
 
-class ParNumberController extends Controller
+class RegularController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,7 +15,7 @@ class ParNumberController extends Controller
     public function index()
     {
         try {
-            $data = ParNumber::all();
+            $data = Regular::all();
 
             return response()->json([
                 'message' => 'Success',
@@ -39,7 +39,7 @@ class ParNumberController extends Controller
     public function store(Request $request)
     {
         try {
-            $data = ParNumber::create($request->all());
+            $data = Regular::create($request->all());
 
             return response()->json([
                 'message' => 'Success',
@@ -57,10 +57,10 @@ class ParNumberController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\ParNumber  $parNumber
+     * @param  \App\Models\Regular  $regular
      * @return \Illuminate\Http\Response
      */
-    public function show(ParNumber $parNumber)
+    public function show(Regular $regular)
     {
         //
     }
@@ -69,14 +69,14 @@ class ParNumberController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ParNumber  $parNumber
+     * @param  \App\Models\Regular  $regular
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         try {
             
-            $data = ParNumber::findOrFail($id);
+            $data = Regular::findOrFail($id);
             $data->update($request->all());
 
             return response()->json([
@@ -95,13 +95,13 @@ class ParNumberController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\ParNumber  $parNumber
+     * @param  \App\Models\Regular  $regular
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
         try {
-            $data = ParNumber::findOrFail($id);
+            $data = Regular::findOrFail($id);
             $data->delete();
 
             return response()->json([
@@ -117,16 +117,16 @@ class ParNumberController extends Controller
         }
     }
 
-     /**
+    /**
      * Deactivate the specified resource from storage.
      *
-     * @param  \App\Models\ParNumber  $ParNumber
+     * @param  \App\Models\Regular  $Regular
      * @return \Illuminate\Http\Response
      */
     public function softdelete($id)
     {
         try {
-            $data = ParNumber::find($id);
+            $data = Regular::find($id);
 
             $data->deleted      = 0;
             $data->updated_at   = now();

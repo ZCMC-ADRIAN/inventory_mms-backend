@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Condition extends Model
+class SettingsData extends Model
 {
     use HasFactory;
-    
-    protected $table = 'conditions';
+
+    protected $table = 'settings_data';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'name',
+        'name'
     ];
 
-    public $timestamps = [ "created_at" ];
+    public $timestamps = true;
 }

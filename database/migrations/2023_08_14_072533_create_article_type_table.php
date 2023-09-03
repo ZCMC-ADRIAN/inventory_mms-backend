@@ -15,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('article_type', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->integer('article_id')->unasigned();
+            $table->integer('type_id')->unasigned();
         });
     }
 

@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class PurchaseOrder extends Model
 {
     use HasFactory;
+
+    protected $table = 'purchase_orders';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'po_number'
+    ];
+
+    public $timestamps = true;
 }

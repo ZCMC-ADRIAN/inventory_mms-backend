@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Series extends Model
 {
     use HasFactory;
+    
+    protected $table = 'series';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'series',
+        'attributes',
+        'status',
+    ];
+
+    public $timestamps = true;
 }

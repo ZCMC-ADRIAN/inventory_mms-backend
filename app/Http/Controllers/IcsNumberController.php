@@ -14,17 +14,20 @@ class IcsNumberController extends Controller
      */
     public function index()
     {
-        //
-    }
+        try {
+            $data = IcsNumber::all();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -35,7 +38,20 @@ class IcsNumberController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $data = IcsNumber::create($request->all());
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -50,26 +66,30 @@ class IcsNumberController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\IcsNumber  $icsNumber
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(IcsNumber $icsNumber)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\IcsNumber  $icsNumber
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, IcsNumber $icsNumber)
+    public function update(Request $request, $id)
     {
-        //
+        try {
+            
+            $data = IcsNumber::findOrFail($id);
+            $data->update($request->all());
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -78,8 +98,51 @@ class IcsNumberController extends Controller
      * @param  \App\Models\IcsNumber  $icsNumber
      * @return \Illuminate\Http\Response
      */
-    public function destroy(IcsNumber $icsNumber)
+    public function destroy($id)
     {
-        //
+        
+        try {
+            $data = IcsNumber::findOrFail($id);
+            $data->delete();
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+     /**
+     * Deactivate the specified resource from storage.
+     *
+     * @param  \App\Models\IcsNumber  $icsNumber
+     * @return \Illuminate\Http\Response
+     */
+    public function softdelete($id)
+    {
+        try {
+            $data = IcsNumber::find($id);
+
+            $data->deleted      = 0;
+            $data->updated_at   = now();
+            $data->save();
+        
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 }

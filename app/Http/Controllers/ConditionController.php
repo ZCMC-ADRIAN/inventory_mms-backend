@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Condition;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,41 +15,20 @@ class ConditionController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    public function query(Request $request)
-    {
-        //SELECT Pk_locationId, location_name FROM `location` WHERE 1;
         try {
-            if ($request->has('q')) {
-                # search item
-                $q = $request->input('q');
-                $location = DB::select("SELECT Pk_conditionsId, conditions_name FROM `conditions` WHERE conditions_name LIKE ?", ["%$q%"]);
-                return response()->json($location);
-            } else {
-                # code...
-                $location = DB::table('conditions')->select(
-                    ["Pk_conditionsId","conditions_name"]
-                )->get();
-                return response()->json($location);
-            }
-        } catch (\Throwable $th) {
-            return response()->json([
-                'status' => 500,
-                'message' => $th
-            ]);
-        }
-    }
+            $data = Condition::all();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -59,29 +39,20 @@ class ConditionController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        try {
+            $data = Condition::create($request->all());
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -93,7 +64,22 @@ class ConditionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            
+            $data = Condition::findOrFail($id);
+            $data->update($request->all());
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -104,6 +90,48 @@ class ConditionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $data = Condition::findOrFail($id);
+            $data->delete();
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Deactivate the specified resource from storage.
+     *
+     * @param  \App\Models\Article  $article
+     * @return \Illuminate\Http\Response
+     */
+    public function softdelete($id)
+    {
+        try {
+            $data = Condition::find($id);
+
+            $data->deleted      = 0;
+            $data->updated_at   = now();
+            $data->save();
+        
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 }

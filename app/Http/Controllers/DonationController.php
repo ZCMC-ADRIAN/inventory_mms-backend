@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ParNumber;
+use App\Models\Donation;
 use Illuminate\Http\Request;
 
-class ParNumberController extends Controller
+class DonationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,7 +15,7 @@ class ParNumberController extends Controller
     public function index()
     {
         try {
-            $data = ParNumber::all();
+            $data = Donation::all();
 
             return response()->json([
                 'message' => 'Success',
@@ -39,7 +39,7 @@ class ParNumberController extends Controller
     public function store(Request $request)
     {
         try {
-            $data = ParNumber::create($request->all());
+            $data = Donation::create($request->all());
 
             return response()->json([
                 'message' => 'Success',
@@ -57,10 +57,10 @@ class ParNumberController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\ParNumber  $parNumber
+     * @param  \App\Models\Donation  $donation
      * @return \Illuminate\Http\Response
      */
-    public function show(ParNumber $parNumber)
+    public function show(Donation $donation)
     {
         //
     }
@@ -69,14 +69,14 @@ class ParNumberController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ParNumber  $parNumber
+     * @param  \App\Models\Donation  $donation
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         try {
             
-            $data = ParNumber::findOrFail($id);
+            $data = Donation::findOrFail($id);
             $data->update($request->all());
 
             return response()->json([
@@ -95,13 +95,13 @@ class ParNumberController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\ParNumber  $parNumber
+     * @param  \App\Models\Donation  $donation
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
         try {
-            $data = ParNumber::findOrFail($id);
+            $data = Donation::findOrFail($id);
             $data->delete();
 
             return response()->json([
@@ -117,16 +117,16 @@ class ParNumberController extends Controller
         }
     }
 
-     /**
+    /**
      * Deactivate the specified resource from storage.
      *
-     * @param  \App\Models\ParNumber  $ParNumber
+     * @param  \App\Models\Donation  $Donation
      * @return \Illuminate\Http\Response
      */
     public function softdelete($id)
     {
         try {
-            $data = ParNumber::find($id);
+            $data = Donation::find($id);
 
             $data->deleted      = 0;
             $data->updated_at   = now();

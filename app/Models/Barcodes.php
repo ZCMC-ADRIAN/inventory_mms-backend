@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Condition extends Model
+class Barcodes extends Model
 {
     use HasFactory;
-    
-    protected $table = 'conditions';
+
+    protected $table = 'associates';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'name',
+        'code'
     ];
 
-    public $timestamps = [ "created_at" ];
+    public $timestamps = true;
 }

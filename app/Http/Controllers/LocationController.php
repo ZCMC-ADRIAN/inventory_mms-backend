@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class LocationController extends Controller
 {
@@ -14,38 +14,20 @@ class LocationController extends Controller
      */
     public function index(Request $request)
     {
-
         try {
-            if ($request->has('q')) {
-                # search item
-                $q = $request->input('q');
-                $location = DB::select("SELECT Pk_locationId, location_name FROM `location` WHERE location_name LIKE ?", ["%$q%"]);
-                return response()->json($location);
-            } else {
-                # code...
-                $location = DB::table('location')->select(
-                    ["Pk_locationId", "location_name"]
-                )->get();
+            $data = Location::all();
 
-                return response()->json($location);
-            }
-        } catch (\Throwable $th) {
-            return $th;
             return response()->json([
-                'status' => 500,
-                'message' => $th
-            ]);
-        }
-    }
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -56,7 +38,20 @@ class LocationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $data = Location::create($request->all());
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -65,7 +60,7 @@ class LocationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $req)
+    public function show(Request $request)
     {
         try {
             $location = $req->locValue;
@@ -82,17 +77,6 @@ class LocationController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -101,7 +85,22 @@ class LocationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            
+            $data = Location::findOrFail($id);
+            $data->update($request->all());
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -112,6 +111,48 @@ class LocationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $data = Location::findOrFail($id);
+            $data->delete();
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Deactivate the specified resource from storage.
+     *
+     * @param  \App\Models\Location  $Location
+     * @return \Illuminate\Http\Response
+     */
+    public function softdelete($id)
+    {
+        try {
+            $data = Location::find($id);
+
+            $data->deleted      = 0;
+            $data->updated_at   = now();
+            $data->save();
+        
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 }

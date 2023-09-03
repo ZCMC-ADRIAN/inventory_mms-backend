@@ -14,17 +14,20 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //
-    }
+        try {
+            $data = Role::all();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -35,7 +38,20 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $data = Role::create($request->all());
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -50,36 +66,54 @@ class RoleController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Role  $role
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Role $role)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Role $role)
+    public function update(Request $request, $id)
     {
-        //
-    }
+        try {
+            
+            $data = Role::findOrFail($id);
+            $data->update($request->all());
 
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+    
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Role $role)
+    public function destroy($id)
     {
-        //
+        try {
+            $data = Role::findOrFail($id);
+            $data->delete();
+
+            return response()->json([
+                'message' => 'Success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 }

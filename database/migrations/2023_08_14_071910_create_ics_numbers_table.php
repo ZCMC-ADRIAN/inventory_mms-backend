@@ -15,7 +15,9 @@ return new class extends Migration
     {
         Schema::create('ics_numbers', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('ics_number');
+            $table->unsignedInteger('FK_user_ID');
+            $table->foreign('FK_user_ID')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

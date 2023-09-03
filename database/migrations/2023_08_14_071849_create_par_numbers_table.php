@@ -15,7 +15,9 @@ return new class extends Migration
     {
         Schema::create('par_numbers', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('par_number');
+            $table->unsignedInteger('FK_user_id');
+            $table->foreign('FK_user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
