@@ -15,7 +15,7 @@ Route::get('/test', [test::class, 'test']);
 ///Helper 
 Route::namespace('App\Http\Controllers')->group(function () {
     Route::post('/help/upload', 'Helper\MessedUpController@messup');
-    Route::post('/help/uploadinv', 'Helper\InventoryExtract@invExtract');
+    Route::get('/help/uploadinv', 'Helper\InventoryExtract@invExtract');
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -82,6 +82,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/person', 'GetData\Table@person');
         Route::get('/report/person', 'GetData\Table@reportPerson');
         Route::get('/report/not-found', 'GetData\Table@notFound');
+        Route::get('/par', 'GetData\Fields@getPAR');
+        Route::get('/generate/par', 'GeneratePAR@generatePAR');
 
         //Printing Property Tag
         Route::get('/tags', 'GetData\PropertyTag@property_tag');
@@ -93,6 +95,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/series', 'GetData\Fields@getSeries');
         Route::get('/code', 'GetData\Fields@getCode');
         Route::get('/prev', 'GetData\Fields@getPrevSeries');
+        Route::get('/prevSeries', 'GetData\Fields@getPrevNumSeries');
         Route::get('/prevCode', 'GetData\Fields@getPrevCode');
         Route::get('/locName', 'LocationController@show');
 

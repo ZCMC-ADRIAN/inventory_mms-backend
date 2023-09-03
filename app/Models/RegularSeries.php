@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InsertPARSeries extends Model
+class RegularSeries extends Model
 {
     use HasFactory;
-    protected $table = 'par_property_series';
+    protected $table = 'regular_series';
     protected $primaryKey = 'id';
-    protected $fillable = ['series'];
+    protected $fillable = ['Fk_regular_ID', 'Fk_series_ID'];
     public $timestamps = false;
 }

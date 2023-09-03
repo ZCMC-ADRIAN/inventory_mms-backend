@@ -12,6 +12,7 @@ use App\Models\InsertCountry;
 use App\Models\InsertUnit;
 use App\Models\InsertSupplier;
 use App\Models\ArticleRelation;
+use App\Models\InventoryItemRelation;
 use App\Models\Inventory;
 
 use Illuminate\Support\Facades\DB;
@@ -26,9 +27,9 @@ class EditItems extends Controller
             if (!empty($req->itemId)) {
                 $item = InsertItem::find($req->itemId);
             } elseif (!empty($req->inventoryId)) {
-                $inventory = Inventory::find($req->inventoryId);
+                $inventory = InventoryItemRelation::find($req->inventoryId);
                 if ($inventory) {
-                    $item = $inventory->item;
+                    $item = $inventory->inventory;
                 } else {
                     return response()->json([
                         "message" => "Inventory not found"
@@ -41,9 +42,13 @@ class EditItems extends Controller
             }
 
             if (!$item) {
-                return response()->json([
-                    "message" => "Item not found"
-                ], 404);
+                try {
+                    //code...
+                } catch (\Throwable $th) {
+                    return response()->json([
+                        'message' => $th -> getMessage()
+                    ]);
+                }
             }
 
             // Update Remarks, Expiration, and Cost

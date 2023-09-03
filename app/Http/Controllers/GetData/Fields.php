@@ -28,6 +28,7 @@ class Fields extends Controller
             $articleTypes = null;
             $editTypes = null;
             $editArticleTypes = null;
+            $mergedQuery = null;
             
             if(!empty($req->article)) {
                 $articleTypes = DB::table('article_relation')
@@ -41,17 +42,23 @@ class Fields extends Controller
             }
 
             if(!empty($req->editArticle)){
+                $secondData = DB::table('types')
+                ->select('type_name', 'Pk_typeId')
+                ->where('type_name', 'None');
+
                 $editArticleTypes = DB::table('article_relation')
                 ->join('articles', 'article_relation.Fk_articleId', '=', 'articles.Pk_articleId')
                 ->join('types', 'article_relation.Fk_typeId', '=', 'types.Pk_typeId')
                 ->select('type_name', 'types.Pk_typeId')
                 ->where('article_name', $req->editArticle)
-                ->whereNotNull('type_name')->get();
+                ->whereNotNull('type_name');
+
+                $mergedQuery = $secondData->union($editArticleTypes)->get();
             }
             
             return response()->json([
                 'articleTypes' => $articleTypes,
-                'editArticleTypes' => $editArticleTypes
+                'editArticleTypes' => $mergedQuery
             ]);
             
         } catch (\Throwable $th) {
@@ -132,7 +139,7 @@ class Fields extends Controller
             $cost = $req->cost;
             
             if ($cost >= 50000) {
-                $getSeries = DB::table('par_series')->select('series')->orderBy('created_at', 'desc')->first();
+                $getSeries = DB::table('par_property_series')->select('series')->orderBy('created_at', 'desc')->first();
             
                 if ($getSeries !== null) {
                     $lastNumber = $getSeries->series;
@@ -142,7 +149,7 @@ class Fields extends Controller
                 }
                 
             } elseif ($cost < 50000) {
-                $getSeries = DB::table('ics_series')->select('series')->orderBy('created_at', 'desc')->first();
+                $getSeries = DB::table('ics_property_series')->select('series')->orderBy('created_at', 'desc')->first();
             
                 if ($getSeries !== null) {
                     $lastNumber = $getSeries->series;
@@ -169,7 +176,7 @@ class Fields extends Controller
 
             if($cost >= 50000){
                 //get Series for PAR Number
-                $getSeries = DB::select('SELECT series FROM `par_no` ORDER BY created_at DESC LIMIT 1');
+                $getSeries = DB::select('SELECT series FROM `series` WHERE attributes = "PAR" ORDER BY created_at DESC LIMIT 1');
 
                 foreach($getSeries as $num){
                     $numSeries = $num->series;
@@ -183,7 +190,7 @@ class Fields extends Controller
                 }
             }elseif ($cost < 50000){
                 //get Series for ICS Number
-                $getSeries = DB::select('SELECT series FROM `ics_no` ORDER BY created_at DESC LIMIT 1');
+                $getSeries = DB::select('SELECT series FROM `series` WHERE attributes = "ICS" ORDER BY created_at DESC LIMIT 1');
 
                 foreach($getSeries as $num){
                     $numSeries = $num->series;
@@ -198,6 +205,67 @@ class Fields extends Controller
             }
 
             return response()->json($nextNumber);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th -> getMessage()
+            ]);
+        }
+    }
+
+    public function getPrevNumSeries(Request $req){
+        try {
+            $itemId = $req->itemId;
+            $assoc_id = $req->assoc_id;
+
+            $cost = DB::table('items')
+            ->where('Pk_itemId', $itemId)
+            ->value('cost');
+        
+            // Determine which table to join based on the cost
+            $joinTable = $cost >= 50000 ? 'par' : 'ics';
+        
+            // Fetch data from inventories table with appropriate join
+            $checkingPO = DB::table('inventories')
+            ->select('Fk_person_ID', 'po_number')
+            ->leftJoin('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
+            ->leftJoin('item_attributes', 'inventories.Fk_item_attributes', '=', 'item_attributes.id')
+            ->leftJoin($joinTable, 'item_attributes.Fk_' . $joinTable . '_ID', '=', $joinTable . '.id')
+            ->leftJoin('po_number', 'item_attributes.Fk_po_ID', '=', 'po_number.Pk_poId')
+            ->where('Fk_itemId', $itemId)
+            ->get();
+            $assocIdInCheckingPO = false;
+
+            foreach ($checkingPO as $entry) {
+                if ($entry->Fk_person_ID == $assoc_id) {
+                    $assocIdInCheckingPO = true;
+                    break;
+                }
+            }
+
+            if (!$assocIdInCheckingPO) {
+                if($assoc_id !== null){
+                        $condition = ($cost >= 50000) ? 'PAR' : 'ICS';
+                        $data = DB::select("SELECT series FROM series WHERE attributes = '$condition' ORDER BY created_at DESC LIMIT 1");
+        
+                        foreach ($data as $num) {
+                            $numSeries = $num->series;
+                        }
+        
+                        if ($data !== null) {
+                            $lastNumber = $numSeries;
+                            $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+                        } else {
+                            $nextNumber = '0001';
+                        }
+        
+                        return response()->json($nextNumber);
+                    } else {
+                        return response()->json([
+                            'error' => 'assoc_id already exists in the list of Fk_person_ID from checkingPO'
+                        ]);
+                    }
+                }
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -241,7 +309,7 @@ class Fields extends Controller
             $itemId = $req->itemId;
             $numSeries= null;
 
-            $prev = DB::select('SELECT DISTINCT IF(par_series.series IS NOT NULL, par_series.series, ics_series.series) AS series FROM inventories LEFT JOIN items ON items.Pk_itemId = inventories.Fk_itemId LEFT JOIN propertyno ON inventories.Fk_propertyId = propertyno.Pk_propertyId LEFT JOIN par_series ON propertyno.Fk_parId = par_series.Pk_parId LEFT JOIN ics_series ON propertyno.Fk_icsId = ics_series.Pk_icsId WHERE Pk_itemId = ?', ["$itemId"]); 
+            $prev = DB::select('SELECT DISTINCT IF(par_property_series.series IS NOT NULL, par_property_series.series, ics_property_series.series) AS series FROM inventories LEFT JOIN items ON items.Pk_itemId = inventories.Fk_itemId LEFT JOIN propertyno ON inventories.Fk_propertyId = propertyno.Pk_propertyId LEFT JOIN par_property_series ON propertyno.Fk_parId = par_property_series.id LEFT JOIN ics_property_series ON propertyno.Fk_icsId = ics_property_series.id WHERE Pk_itemId = ?', ["$itemId"]);
 
             foreach($prev as $num){
                 $numSeries = $num->series;
@@ -309,6 +377,19 @@ class Fields extends Controller
             $PO = DB::table('po_number')->select('po_number')->get();
 
             return response()->json($PO);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ]);
+        }
+    }
+
+    public function getPAR(){
+        try {
+            $par = DB::table('par')->select('par_number')->get();
+
+            return response()->json($par);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th->getMessage()

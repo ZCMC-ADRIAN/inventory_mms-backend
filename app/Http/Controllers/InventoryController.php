@@ -13,13 +13,17 @@ use App\Models\InsertVariety;
 use App\Models\InsertPropertyNo;
 use App\Models\InsertICSSeries;
 use App\Models\InsertPARSeries;
-use App\Models\InsertICSNum;
-use App\Models\InsertPARNum;
+use App\Models\Series;
 use App\Models\InsertItemRelation;
-use App\Models\InsertICSDetails;
-use App\Models\InsertPARDetails;
+use App\Models\Regular;
 use App\Models\InsertFundCluster;
+use App\Models\ItemAttributes;
+use App\Models\RegularSeries;
+use App\Models\DonationSeries;
 use App\Models\PO;
+use App\Models\PAR;
+use App\Models\ICS;
+use App\Models\Donation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -78,21 +82,50 @@ class InventoryController extends Controller
             $quantity = $data['quantity'];
             $remarks = $data['remarks'];
             $newProp = $data['newProperty'];
-            $icsNumber = $data['icsNumber'];
-            $parNumber = $data['parNumber'];
             $poNumber = $data['poNum'];
+            $drf = $data['DRF'];
+            $drfDate = $data['DRFDate'];
+            $ptr = $data['PTR'];
             $cost = $data['cost'];
             $oldPAR = $data['oldPAR'];
+            $mode = $data['acquiMode'];
             $Pk_propertyId = null;
+            $isPersonId = null;
+            $poId = null;
+            $regularId = null;
+            $donation_seriesId = null;
+            $icsNumber = ($mode === 'Regular') ? $data['icsNumber'] : 'D' . $data['icsNumber'];
+            $parNumber = ($mode === 'Regular') ? $data['parNumber'] : 'D' . $data['parNumber'];
 
-            $getCost = DB::table('items')->select('cost')->where('Pk_itemId', $itemId)->get();
 
-            foreach($getCost as $resCost){
-                $costs = $resCost->cost;
+            $costs = DB::table('items')
+            ->where('Pk_itemId', $itemId)
+            ->value('cost');
+
+            $joinTable = $costs >= 50000 ? 'par' : 'ics';
+
+            $checkingPO = DB::table('inventories')
+            ->select('Fk_person_ID', 'Pk_poId', 'regular_series.id AS series_id')
+            ->leftJoin('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
+            ->leftJoin('item_attributes', 'inventories.Fk_item_attributes', '=', 'item_attributes.id')
+            ->leftJoin($joinTable, 'item_attributes.Fk_' . $joinTable . '_ID', '=', $joinTable . '.id')
+            ->leftJoin('regular_series', 'item_attributes.Fk_regular_series', '=', 'regular_series.id')
+            ->leftJoin('po_number', 'item_attributes.Fk_po_ID', '=', 'po_number.Pk_poId')
+            ->where('Fk_itemId', $itemId)
+            ->get();
+
+            $assocIdInCheckingPO = false;
+
+            foreach ($checkingPO as $entry) {
+                $regularId = $entry->series_id;
+                if ($entry->Fk_person_ID === $assoc_id) {
+                    $assocIdInCheckingPO = true;
+                    break;
+                }
             }
             
-            $parSeries = DB::table('par_series')->select('series')->get();
-            $icsSeries = DB::table('ics_series')->select('series')->get();
+            $parSeries = DB::table('par_property_series')->select('series')->get();
+            $icsSeries = DB::table('ics_property_series')->select('series')->get();
 
             if ($request->inv === true) {
                 $seriesPAR = 0;
@@ -105,7 +138,7 @@ class InventoryController extends Controller
                     $PAR->save();
 
                     $property = new InsertPropertyNo();
-                    $property->Fk_parId = $PAR->Pk_parId;
+                    $property->Fk_parId = $PAR->id;
                     $property->type = 1;
                     $property->save();
 
@@ -119,47 +152,38 @@ class InventoryController extends Controller
                     $ICS->save();
 
                     $property = new InsertPropertyNo();
-                    $property->Fk_icsId = $ICS->Pk_icsId;
+                    $property->Fk_icsId = $ICS->id;
                     $property->type = 0;
                     $property->save();
                 }
             }
+            
+            $existingPo = PO::where('po_number', $poNumber)->first();
 
-           //check muna if nag exist na ang Id ng ics_no sa assoc_relation table
-        //    $check = InsertItemRelation::where('Fk_assocId', $assoc_id)->pluck('Fk_assocId')->first();
-           $columnPAR = 'Fk_parNumId';
-           $columnICS = 'Fk_icsNumId';
-
-           $existingPo = PO::where('po_number', $poNumber)->first();
-
-           if (!empty($poNumber)) {
-           
-               if ($existingPo) {
-                   $poId = $existingPo->Pk_poId;
-               } else {
-                   $po = PO::create([
-                       'po_number' => $poNumber,
-                   ]);
-                   $poId = $po->Pk_poId;
-               }
-           }
-
-           if (!$existingPo) {
-            if ($cost < 50000) {
-                $icsNumbers = DB::table('ics_no')->max('series');
+            if($request->inv === false){
+                if (!empty($poNumber)) {
         
-                $saveNumSeries = new InsertICSNum();
-                $saveNumSeries->series = $icsNumbers + 1;
-                $saveNumSeries->save();
-                $saveNumSeriesId = $saveNumSeries->Pk_icsNumId;
-            } elseif ($cost >= 50000) {
-                $parNumbers = DB::table('par_no')->max('series');
-        
-                $saveParSeries = new InsertPARNum();
-                $saveParSeries->series = $parNumbers + 1;
-                $saveParSeries->save();
-                $saveParSeriesId = $saveParSeries->Pk_parNumId;
+                    if ($existingPo) {
+                        $poId = $existingPo->Pk_poId;
+                    } else {
+                        $po = PO::create([
+                            'po_number' => $poNumber,
+                        ]);
+                        $poId = $po->Pk_poId;
+                    }
+                }
+            }else {
+                $regularId = $entry->series_id;
+                $poId = $entry->Pk_poId;
             }
+
+        if (!$existingPo || !$assocIdInCheckingPO || !$drf) {
+            $series = new Series();
+            $series->series = Series::where('attributes', $cost < 50000 ? 'ICS' : 'PAR')->max('series') + 1;
+            $series->attributes = $cost < 50000 ? 'ICS' : 'PAR';
+            $series->status = $cost < 50000 ? 'BELOW' : 'ABOVE';
+            $series->save();
+            $savedSeriesId = $series->id;
         }
 
         $cluster = DB::table('fundcluster')->where('fundCluster', $request->fundCluster)->count();
@@ -178,50 +202,62 @@ class InventoryController extends Controller
                 }
             }
         }
+
+            if($request->inv === true){
+                $checkRegular = DB::table('inventories')
+                ->select('regular.id')
+                ->leftJoin('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
+                ->leftJoin('item_attributes', 'inventories.Fk_item_attributes', '=', 'item_attributes.id')
+                ->leftJoin('regular_series', 'item_attributes.Fk_regular_series', '=', 'regular_series.id')
+                ->leftJoin('regular', 'regular_series.Fk_regular_ID', '=', 'regular.id')
+                ->where('Fk_itemId', $itemId)
+                ->get();            
+
+                foreach($checkRegular as $getRegular){
+                    $regularId = $getRegular->id;
+                }
+            }else {
+                if (!empty($drf) || !empty($request->po) && ($request->cost > 50000 || $request->cost < 50000) && !$existingPo) {
+                    if($mode === 'Regular'){
+                        $regular = new Regular();
+                        $regular->fill([
+                            'Fk_fundClusterId' => $clusterId,
+                            'drf' => $request->DRF,
+                            'drf_date' => $request->DRFDate,
+                            'iar' => $request->IAR,
+                            'invoice' => $request->invoiceNum,
+                            'po_date' => $request->poDate,
+                            'ors_num' => $request->ors,
+                            'po_conformed' => $request->poConformed,
+                            'invoice_rec' => $request->invoiceRec,
+                            'ptr_num' => $request->PTR,
+                        ]);
+                        $regular->save();
+                        $regularId = $regular->id;
         
+                        $regular_series = new RegularSeries();
+                        $regular_series->fill([
+                            'Fk_regular_ID' => $regularId,
+                            'Fk_series_ID' => $savedSeriesId
+                        ]);
+                        $regular_series->save();
+                        $regular_seriesId = $regular_series->id;
+                    }else{
+                        $donate = new Donation();
+                        $donate->drf_num = $drf;
+                        $donate->ptr_num = $ptr;
+                        $donate->drf_date = $drfDate;
+                        $donate->save();
+                        $donateId = $donate->id;
 
-        if($request->po != '' && $request->cost < 50000 && !$existingPo){
-            $details = new InsertICSDetails();
-            $details->Fk_fundClusterId = $clusterId;
-            $details->po_date = $request->poDate;
-            $details->invoice = $request->invoiceNum;
-            $details->invoiceDate = $request->invoiceRec;
-            $details->ors = $request->ors;
-            $details->iar = $request->IAR;
-            $details->drf = $request->DRF;
-            $details->drf_date = $request->DRFDate;
-            $details->ptr_num = $request->PTR;
-            $details->save();
-
-            $detailsId = DB::table('ics_details')->select('Pk_icsDetails')->get();
-
-            foreach($detailsId as $resICS){
-                $icsId = $resICS->Pk_icsDetails;
+                        $donation_series = new DonationSeries();
+                        $donation_series->Fk_donation_ID = $donateId;
+                        $donation_series->Fk_series_ID = $savedSeriesId;
+                        $donation_series->save();
+                        $donation_seriesId = $donation_series->id;
+                    }
+                }
             }
-        }else{
-            $icsId = null;
-        }
-        
-        if (!empty($request->po) && $request->cost > 50000 && !$existingPo) {
-            $par_details = new InsertPARDetails();
-            $par_details->fill([
-                'Fk_fundClusterId' => $clusterId,
-                'drf' => $request->DRF,
-                'drf_date' => $request->DRFDate,
-                'iar' => $request->IAR,
-                'invoice' => $request->invoiceNum,
-                'po_date' => $request->poDate,
-                'ors_num' => $request->ors,
-                'po_conformed' => $request->poConformed,
-                'invoice_rec' => $request->invoiceRec,
-                'ptr_num' => $request->PTR,
-            ]);
-            $par_details->save();
-        
-            $parId = $par_details->Pk_parDetails;
-        } else {
-            $parId = null;
-        }  
 
             $propertyNo = DB::table('propertyno')->select('Pk_propertyId')->orderBy('created_at', 'desc')->first();
 
@@ -254,29 +290,6 @@ class InventoryController extends Controller
                 $isnew = true;
             }
             
-            if($request-> inv === true){
-                $itemRelationId = Inventory::where('Fk_itemId', $itemId)->pluck('Fk_item_relationId')->first();
-            }else{  
-                if(!$existingPo){
-                    $itemRelation = new InsertItemRelation;
-                    $itemRelation->Fk_poId = $poId;
-                    $itemRelation->Fk_icsNumId = empty($saveNumSeriesId) ? NULL : $saveNumSeriesId;
-                    $itemRelation->Fk_parNumId = empty($saveParSeriesId) ? NULL : $saveParSeriesId;
-                    $itemRelation->Fk_icsDetailsId = $icsId;
-                    $itemRelation->Fk_parDetailsId = $parId;
-                    $itemRelation->ics_number = $cost < 50000 ? $icsNumber : NULL;
-                    $itemRelation->old_parNum = $oldPAR;
-                    $itemRelation->par_number = $cost >= 50000 ? $parNumber : NULL;
-                    $itemRelation->save();
-                    $itemRelationId = $itemRelation->Pk_item_relationId;
-                }else{
-                    $checkExistingPO = InsertItemRelation::where('Fk_poId', $poId)->first();
-                    $itemRelationId = $checkExistingPO->Pk_item_relationId;
-                }
-            }
-            
-            
-            
             if (!$isnew) {
                 echo 'find in db and try to get the id of the locatman';
                 $locatman = get_object_vars(DB::table('locat_man')
@@ -292,12 +305,45 @@ class InventoryController extends Controller
                 ])->id;
             }
 
+            if (!$assocIdInCheckingPO) {
+                $PAR = ($cost >= 50000 || $costs >= 50000) ? new PAR() : new ICS();
+                $itemField = ($cost >= 50000 || $costs >= 50000) ? 'par_number' : 'ics_number';
+                $itemIdField = ($cost >= 50000 || $costs >= 50000) ? 'Fk_par_ID' : 'Fk_ics_ID';
+                
+                $PAR->fill([
+                    'Fk_person_ID' => $assoc_id,
+                    $itemField => ($cost >= 50000 || $costs >= 50000) ? $parNumber : $icsNumber
+                ]);
+                $PAR->save();
+                $PARId = $PAR->id;
+
+                $attributes = new ItemAttributes();
+                $attributes->fill([
+                    'Fk_po_ID' => $poId,
+                    $itemIdField => $PARId,
+                    'Fk_regular_series' => $regularId,
+                    'Fk_donation_series' => $donation_seriesId
+                ]);
+                $attributes->save();
+                $attributesId = $attributes->id;
+
+            }else{
+                $attributesId = DB::table('item_attributes') 
+                ->select('item_attributes.id')
+                ->leftJoin('po_number', 'item_attributes.Fk_po_ID', '=', 'po_number.Pk_poId')
+                ->leftJoin($joinTable, 'item_attributes.Fk_' . $joinTable . '_ID', '=', $joinTable . '.id')
+                ->leftJoin('associate', 'Pk_assocId', '=',  "$joinTable.Fk_person_ID")
+                ->where('Pk_poId', $poId)
+                ->where('Fk_person_ID', $assoc_id)
+                ->value('item_attributes.id');
+            }
+
             $inventory = Inventory::create([
                 'Fk_itemId' => $itemId,
                 'Fk_conditionsId' => $condition_id,
                 'Fk_locatmanId' => $locatman,
                 'Fk_propertyId' => $Pk_propertyId,
-                'Fk_item_relationId' => $itemRelationId,
+                'Fk_item_attributes' => $attributesId,   
                 'Delivery_date' => $delivery_date,
                 'Quantity' => $quantity,
                 'property_no' => $prop_no,

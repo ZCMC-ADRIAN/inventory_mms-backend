@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class InsertICSSeries extends Model
 {
     use HasFactory;
-    protected $table = 'ics_series';
-    protected $primaryKey = 'Pk_icsId';
+    protected $table = 'ics_property_series';
+    protected $primaryKey = 'id';
     protected $fillable = ['series'];
     public $timestamps = false;
 }

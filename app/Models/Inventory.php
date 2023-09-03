@@ -17,7 +17,7 @@ class Inventory extends Model
         'Fk_conditionsId',
         'Fk_locatmanId',
         'Fk_propertyId',
-        'Fk_item_relationId',
+        'Fk_item_attributes',
         'Delivery_date',
         'Quantity',
         'property_no',
@@ -40,7 +40,7 @@ class Inventory extends Model
     {
         return $this->belongsTo(InsertItem::class, 'Fk_itemId', 'Pk_itemId');
     }
-
+    
     public function locatMan()
     {
         return $this->belongsTo(LocatMan::class, 'Fk_locatmanId', 'Pk_locatmanId');

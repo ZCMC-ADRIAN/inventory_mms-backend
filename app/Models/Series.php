@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InsertICSNum extends Model
+class Series extends Model
 {
     use HasFactory;
-    protected $table = 'ics_no';
-    protected $primaryKey = 'Pk_icsNumId';
-    protected $fillable = ['series'];
+    protected $table = 'series';
+    protected $primaryKey = 'id';
+    protected $fillable = ['seies', 'attributes', 'status'];
     public $timestamps = false;
 }

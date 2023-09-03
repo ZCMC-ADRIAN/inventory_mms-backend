@@ -38,8 +38,8 @@ class CreateItem extends Controller
             $supplier = DB::table('suppliers')->where('supplier', $req->supplier)->count();
             $manu = DB::table('manufacturers')->where('manu_name', $req->manufacturer)->count();
             $category = DB::table('itemcateg')->select('*')->where('itemCateg_name', $req->category)->get();
-            $parSeries = DB::table('par_series')->select('series')->get();
-            $icsSeries = DB::table('ics_series')->select('series')->get();
+            $parSeries = DB::table('par_property_series')->select('series')->get();
+            $icsSeries = DB::table('ics_property_series')->select('series')->get();
             $selectedArticleId = $req->articleId;
             $selectedTypeId = $req->typeId;
 
@@ -211,7 +211,7 @@ class CreateItem extends Controller
                         $PAR->save();
     
                         $property = new InsertPropertyNo();
-                        $property->Fk_parId = $PAR->Pk_parId;
+                        $property->Fk_parId = $PAR->id;
                         $property->type = 1;
                         $property->save();
     
@@ -224,7 +224,7 @@ class CreateItem extends Controller
                         $ICS->save();
     
                         $property = new InsertPropertyNo();
-                        $property->Fk_icsId = $ICS->Pk_icsId;
+                        $property->Fk_icsId = $ICS->id;
                         $property->type = 0;
                         $property->save();
                     }
@@ -321,7 +321,7 @@ class CreateItem extends Controller
                 $item->Fk_brandId = $brandId;
                 $item->Fk_countryId = $countryId;
                 $item->Fk_itemCategId = $categId;
-                $item->item_name = $req->descOrig;
+                // $item->item_name = $req->descOrig;
                 $item->model = $req->model;
                 $item->details2 = $req->details;
                 $item->accessories = $req->accessories;
