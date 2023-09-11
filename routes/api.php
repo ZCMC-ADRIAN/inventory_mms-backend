@@ -6,10 +6,14 @@ use App\Http\Controllers\test;
 use Illuminate\Support\Facades\Route;
 
 
+Route::namespace('App\Http\Controllers\Auth')->group(function () {
+    Route::post('/register', 'RegisterController@create');
+});
+
 Route::namespace('App\Http\Controllers')->group(function () {
-    Route::get('/article', 'ArticleController@index');
     Route::post('/article', 'ArticleController@store');
 });
+
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
