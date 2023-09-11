@@ -16,8 +16,9 @@ class GeneratePAR extends Controller
             $par_no = $req->par;
 
             $data = Inventory::query()
-            ->selectRaw('CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc", location_name, person_name, Quantity AS "qty", cost * Quantity AS "total", FORMAT(cost, 2) AS "costs", newProperty, acquisition_date, fundCluster, invoice, unit, po_date, ors_num, po_conformed, invoice_rec, iar, po_number, drf_num, ptr_num, drf_date, fundSource')
+            ->selectRaw('CONCAT_WS(" ", article_name, type_name, model, variety, details2) AS "desc", location_name, person_name, Quantity AS "qty", cost * Quantity AS "total", FORMAT(cost, 2) AS "costs", newProperty, acquisition_date, fundCluster, invoice, unit, po_date, ors_num, po_conformed, invoice_rec, iar, po_number, drf_num, ptr_num, drf_date, fundSource, supplier')
             ->leftJoin('items', 'inventories.Fk_itemId', '=', 'items.Pk_itemId')
+            ->leftJoin('suppliers', 'items.Fk_supplierId', '=', 'suppliers.Pk_supplierId')
             ->leftJoin('locat_man', 'inventories.Fk_locatmanId', '=', 'locat_man.Pk_locatmanId')
             ->leftJoin('location', 'locat_man.Fk_locationId', '=', 'location.Pk_locationId')
             ->leftJoin('article_relation', 'items.Fk_article_relationId', '=', 'article_relation.Pk_article_relationId')
