@@ -18,6 +18,13 @@ Route::namespace('App\Http\Controllers')->group(function () {
     Route::get('/help/uploadinv', 'Helper\InventoryExtract@invExtract');
 });
 
+Route::namespace('App\Http\Controllers')->group(function () {
+    Route::post('/item/store', 'CreateItem@insert');
+    Route::get('/manufacturer', 'ManufacturerController@index');
+
+});
+
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::namespace('App\Http\Controllers')->group(function () {
         Route::post('/logout', 'SignUp@logout');
@@ -33,6 +40,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/cluster', 'GetData\Fields@get_cluster');
         Route::get('/po', 'GetData\Fields@getPO');
 
+        // Manufacturer
         //Variety
         Route::get('/variety', 'VarietyController@index');
 

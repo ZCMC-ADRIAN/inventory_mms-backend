@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
 use App\Models\InsertArticle;
 use App\Models\InsertVariety;
 use App\Models\InsertBrand;
@@ -349,5 +350,74 @@ class CreateItem extends Controller
                 'message' => $th->getMessage()
             ]);
         }
+    }
+
+    public function insert(Request $request)
+    {    
+        try {
+            
+            // Validate Article
+            $articleId = InsertArticle::where('article_name', $request['article'])->get();
+            if ($articleId->isEmpty()) {
+                 $article = InsertArticle::create([
+                    'article_name' => $request['article']
+                ]);
+
+                $article_id = $article->Pk_articleId;
+            } else {
+
+                $article_id = $articleId->first()['Pk_articleId'];
+            }
+
+            // Validate Type
+            $typeId = InsertTypes::where('type_name', $request['type'])->get();
+            if ($typeId->isEmpty()) {
+                $type = InsertTypes::create([
+                    'type_name' => $request['type']
+                ]);
+
+                $type_id = $type->Pk_typeId ;
+            } else {
+
+                $type_id = $typeId->first()['Pk_typeId'];
+            }
+          
+            // Attach Article & Type
+            $article_type = ArticleRelation::create([
+                'Fk_articleId'  => $article_id,
+                'Fk_typeId'     => $type_id
+            ]);
+
+
+            // Validate Brand
+            $typeId = InsertTypes::where('type_name', $request['type'])->get();
+            if ($typeId->isEmpty()) {
+                $type = InsertTypes::create([
+                    'type_name' => $request['type']
+                ]);
+
+                $type_id = $type->Pk_typeId ;
+            } else {
+
+                $type_id = $typeId->first()['Pk_typeId'];
+            }
+
+            // Insert Item
+            
+            return response()->json([
+                'message' => 'Item created successfully',
+                'data' => $article_id
+            ], 201);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Item created error',
+                'data' => $th
+            ], 500);
+        }
+
+        
+
+
     }
 }

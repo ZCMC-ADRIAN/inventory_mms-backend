@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Condition extends Model
+class Manufacturer extends Model
 {
     use HasFactory;
-    protected $table = 'conditions';
-    
-    public $timestamps = false;
+
+    protected $table = 'manufacturers';
+
+    protected $primaryKey = 'Pk_manuId';
 
     protected $fillable = [
-        'conditions_name',
-        
+        'manu_name',
     ];
 }
