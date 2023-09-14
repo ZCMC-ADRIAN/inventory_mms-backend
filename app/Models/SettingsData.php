@@ -14,7 +14,8 @@ class SettingsData extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'name'
+        'name',
+        'setting_id',
     ];
 
     public $timestamps = true;

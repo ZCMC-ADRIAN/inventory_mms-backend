@@ -11,7 +11,11 @@ Route::namespace('App\Http\Controllers\Auth')->group(function () {
 });
 
 Route::namespace('App\Http\Controllers')->group(function () {
-    Route::post('/article', 'ArticleController@store');
+    Route::post('/settings', 'SettingsController@store');
+    Route::post('/settings/data', 'SettingsDataController@store');
+
+    Route::get('/item', 'ItemController@index');
+    Route::post('/item', 'ItemController@store');
 });
 
 

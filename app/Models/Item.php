@@ -87,4 +87,17 @@ class Item extends Model
     {
         return $this->belongsToMany(Item::class, 'item_category', 'item_id', 'category_id');
     }
+
+    
+    //SettingsData Relationship
+    public function settings()
+    {
+        return $this->belongsToMany('App\Models\Settings')->withPivot('settings_id');
+    }
+
+    //SettingsData Relationship
+    public function settings_data()
+    {
+        return $this->belongsToMany('App\Models\SettingsData')->withPivot('settings_data_id');
+    }
 }

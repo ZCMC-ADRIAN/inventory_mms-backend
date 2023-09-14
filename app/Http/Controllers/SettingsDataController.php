@@ -41,7 +41,7 @@ class SettingsDataController extends Controller
         try {
             // $data = Settings::create($request->all());
             
-            $data = $request->input('items');
+            $data = $request->input('data');
 
             foreach ($data as $item) {
                 SettingsData::create($item);
