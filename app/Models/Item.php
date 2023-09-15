@@ -100,4 +100,10 @@ class Item extends Model
     {
         return $this->belongsToMany('App\Models\SettingsData')->withPivot('settings_data_id');
     }
+
+    //Conditions Relationship
+    public function conditions()
+    {
+        return $this->belongsToMany('App\Models\Conditions')->withPivot('item_id');
+    }
 }

@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Helpers\Helper;
 
 use App\Models\Item;
 use App\Models\Settings;
 use App\Models\SettingsData;
+use App\Models\Series;
+use App\Models\Location;
+use App\Models\Associate;
+use App\Models\Condition;
 
 class ItemController extends Controller
 {
@@ -59,17 +64,48 @@ class ItemController extends Controller
         try {
             $item = Item::create($request->all());
 
+            $data = new Series();
+
+            if ($request['cost'] >= 50000) {
+
+                $series = Helper::PARIDGenerator($data, 'series', 5, 'PAR');
+
+                $data->series        = $series;
+                $data->attributes    = 'PAR';
+                $data->save();
+
+            } else if($request['cost']< 50000){
+
+                $series = Helper::ICSIDGenerator($data, 'series', 5, 'D');
+
+                $data->series        = $series;
+                $data->attributes    = 'ICS';
+                $data->save();
+            }
+
             $req = $request->input('data');
 
             foreach ($req as $data) {
                 // $item = Item::create($data);
 
-                $settings = Settings::select('id')->where('name', $data['settings_name'])->first();
-                $item->settings()->attach($settings);
+                $settings       = Settings::select('id')->where('name', $data['settings_name'])->first();
+                                $item->settings()->attach($settings);
 
-                $settings_data = SettingsData::select('id')->where('name', $data['settings_data_name'])->first();
-                $item->settingsData()->attach($settings_data);
-            }  
+                $settings_data  = SettingsData::select('id')->where('name', $data['settings_data_name'])->first();
+                                $item->settings_data()->attach($settings_data);
+
+                if ($data['location'] != null && $data['associate'] != null && $data['condition'] = null) {
+                    $location       = Location::select('id')->where('name', $data['location'])->first();
+                                    $item->conditions()->attach($associate);
+
+                    $associate      = Associate::select('id')->where('name', $data['associate'])->first();
+                                    $item->conditions()->attach($associate);
+
+                    $condition      = Condition::select('id')->where('name', $data['condition'])->first();
+                                    $item->conditions()->attach($condition);
+
+                }
+            }
 
             return response()->json([
                 'message' => 'Success',
