@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
+use App\Helpers\Helper;
+
 use App\Models\InsertArticle;
 use App\Models\InsertVariety;
 use App\Models\InsertBrand;
