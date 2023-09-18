@@ -83,7 +83,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/report/person', 'GetData\Table@reportPerson');
         Route::get('/report/not-found', 'GetData\Table@notFound');
         Route::get('/par', 'GetData\Fields@getPAR');
+        Route::get('/ics', 'GetData\Fields@getICS');
         Route::get('/generate/par', 'GeneratePAR@generatePAR');
+        Route::get('/generate/ics', 'GenerateICS@generateICS');
 
         //Printing Property Tag
         Route::get('/tags', 'GetData\PropertyTag@property_tag');

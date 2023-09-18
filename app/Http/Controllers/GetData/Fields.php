@@ -396,4 +396,17 @@ class Fields extends Controller
             ]);
         }
     }
+
+    public function getICS(){
+        try {
+            $ics = DB::table('ics')->select('ics_number')->get();
+
+            return response()->json($ics);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ]);
+        }
+    }
 }
