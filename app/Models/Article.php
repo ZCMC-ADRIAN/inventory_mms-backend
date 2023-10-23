@@ -5,26 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-//Fk_locationId
-
-
-
-class Associate extends Model
+class Article extends Model
 {
     use HasFactory;
     
-    protected $table = 'associate';
+    protected $table = 'articles';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'associate_name'
+        'article_name'
     ];
 
     // public $timestamps = false;
 
     public function type()
     {
-        return $this->belongsToMany('App\Models\Location', 'FK_associate_id', 'FK_location_id')->withPivot('FK_associate_id');
+        return $this->belongsToMany('App\Models\Type', 'FK_article_id', 'FK_type_id')->withPivot('FK_article_id');
     }
 }

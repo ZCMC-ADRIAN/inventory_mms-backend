@@ -16,6 +16,8 @@ Route::get('/test', [test::class, 'test']);
 Route::namespace('App\Http\Controllers')->group(function () {
     Route::post('/help/upload', 'Helper\MessedUpController@messup');
     Route::get('/help/uploadinv', 'Helper\InventoryExtract@invExtract');
+
+    Route::post('/inventory', 'InventoryController@store');
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {

@@ -5,16 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Location extends Model
+class PTR extends Model
 {
     use HasFactory;
 
-    protected $table = 'locations';
+    protected $table = 'ptr';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'location_name'
+        'ptr_num', 
+        'system_ptr_num'
     ];
 
     // public $timestamps = false;

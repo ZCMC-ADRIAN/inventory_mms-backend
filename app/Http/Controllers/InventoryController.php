@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper; 
+
 use App\Models\Condition;
 use App\Models\Location;
 use App\Models\Associate;
@@ -50,6 +52,7 @@ class InventoryController extends Controller
     {
         //
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -217,45 +220,56 @@ class InventoryController extends Controller
                     $regularId = $getRegular->id;
                 }
             }else {
-                if (!empty($drf) || !empty($request->po) && ($request->cost > 50000 || $request->cost < 50000) && !$existingPo) {
-                    if($mode === 'Regular'){
-                        $regular = new Regular();
-                        $regular->fill([
-                            'Fk_fundClusterId' => $clusterId,
-                            'drf' => $request->DRF,
-                            'drf_date' => $request->DRFDate,
-                            'iar' => $request->IAR,
-                            'invoice' => $request->invoiceNum,
-                            'po_date' => $request->poDate,
-                            'ors_num' => $request->ors,
-                            'po_conformed' => $request->poConformed,
-                            'invoice_rec' => $request->invoiceRec,
-                            'ptr_num' => $request->PTR,
-                        ]);
-                        $regular->save();
-                        $regularId = $regular->id;
-        
-                        $regular_series = new RegularSeries();
-                        $regular_series->fill([
-                            'Fk_regular_ID' => $regularId,
-                            'Fk_series_ID' => $savedSeriesId
-                        ]);
-                        $regular_series->save();
-                        $regular_seriesId = $regular_series->id;
-                    }else{
-                        $donate = new Donation();
-                        $donate->drf_num = $drf;
-                        $donate->ptr_num = $ptr;
-                        $donate->drf_date = $drfDate;
-                        $donate->save();
-                        $donateId = $donate->id;
+                if($request['acquiMode'] === 'Regular'){
+                    $regular = new Regular();
+                    $regular->fill([
+                        'Fk_fundClusterId' => $clusterId,
+                        'invoice' => $request->invoiceNum,
+                        'po_date' => $request->poDate,
+                        'ors_num' => $request->ors,
+                        'po_conformed' => $request->poConformed,
+                        'invoice_rec' => $request->invoiceRec,
+                        'iar' => $request->IAR,
+                    ]);
+                    $regular->save();
+                    $regularId = $regular->id;
+    
+                    $regular_series = new RegularSeries();
+                    $regular_series->fill([
+                        'Fk_regular_ID' => $regularId,
+                        'Fk_series_ID' => $savedSeriesId
+                    ]);
+                    $regular_series->save();
+                    $regular_seriesId = $regular_series->id;
 
-                        $donation_series = new DonationSeries();
-                        $donation_series->Fk_donation_ID = $donateId;
-                        $donation_series->Fk_series_ID = $savedSeriesId;
-                        $donation_series->save();
-                        $donation_seriesId = $donation_series->id;
+                }else {
+                    // if (!empty($ptr) || !empty($request->po) &&  !$existingPo) {}
+                    $donate = new Donation;
+
+                    if ($ptr !== null) {
+                        $system_ptr_num = Helper::PTRIDGenerator($donate, 'system_ptr_num', 5, 'PTR');
+                        $drf_date       = null;
+
+                    } else {
+                        
+                        $drf            = Helper::DRFIDGenerator($donate, 'system_ptr_num', 5, 'D');
+                        $ptr            = null;
+                        $system_ptr_num = null;
                     }
+
+                    $donate->drf_num        = $drf;
+                    $donate->ptr_num        = $ptr;
+                    $donate->system_ptr_num = $system_ptr_num;
+                    $donate->drf_date       = $drf_date;
+                    $donate->save();
+
+                    $donateId = $donate->id;
+
+                    $donation_series = new DonationSeries();
+                    $donation_series->Fk_donation_ID = $donateId;
+                    $donation_series->Fk_series_ID = $savedSeriesId;
+                    $donation_series->save();
+                    $donation_seriesId = $donation_series->id;
                 }
             }
 
@@ -356,7 +370,7 @@ class InventoryController extends Controller
             DB::commit();
             return response()->json([
                 'message' => 'Inventory created successfully',
-                'data' => $inventory
+                'data' => $donate
             ], 201);
         } catch (\Throwable $th) {
             DB::rollBack();

@@ -5,17 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Location extends Model
+class Country extends Model
 {
     use HasFactory;
 
-    protected $table = 'locations';
+    protected $table = 'countries';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'location_name'
+        'country_name'
     ];
 
     // public $timestamps = false;
+
 }

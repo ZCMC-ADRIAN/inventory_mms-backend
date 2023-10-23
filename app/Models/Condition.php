@@ -8,10 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Condition extends Model
 {
     use HasFactory;
+
     protected $table = 'conditions';
-public $timestamps = false;
+
+    protected $primaryKey = 'id';
+
     protected $fillable = [
-        'conditions_name',
-        
+        'condition_name'
     ];
+
+    // public $timestamps = false;
 }
